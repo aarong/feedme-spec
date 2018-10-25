@@ -1300,8 +1300,8 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-Each element in the `FeedDeltas` array must also satisfy one
-of the feed delta schemas specified below.
+Each element in the `FeedDeltas` array must also satisfy one of the feed delta
+schemas specified below.
 
 #### FeedTermination
 
