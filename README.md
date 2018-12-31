@@ -1394,7 +1394,7 @@ Feed delta objects take the following form:
 
 ```json
 {
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Operation": "SOME_OPERATION",
   ...
 }
@@ -1402,37 +1402,35 @@ Feed delta objects take the following form:
 
 Parameters:
 
-- `Path` (string) is the location in the feed data to operate upon.
+- `Path` (array) describes the location in the feed data to operate upon.
 
 - `Operation` (string) is the name of the delta operation to perform. Its value
-  may put additional requirements on the feed delta object, including the path.
+  may put additional requirements on the feed delta object (including the path).
 
 ### Paths
 
-`Paths` are strings used to reference locations in the feed data.
+`Path` arrays are used to reference locations in the feed data object. Paths are
+specified according to the following rules:
 
-Paths are specified using the following subset of
-[JSON Path](http://goessner.net/articles/JsonPath/) syntax:
+- `[]` refers to the root feed data object.
 
-- `$` refers to the root feed data object.
-
-- `$.Something` refers to the `Something` property of the root object.
-
-- `$['Some Thing']` refers to the `Some Thing` property of the root object.
-
-- `$.Parent.Something` refers to the `Something` property of the `$.Parent`
+- `["Something"]` refers to the `Something` property of the root feed data
   object.
 
-- `$.Parent['Some Thing']` refers to the `Some Thing` property of the `$.Parent`
-  object.
+- `["Parent", "Something"]` refers to the `Something` property of the `Parent`
+  object, which in turn is a child of the root feed data object.
 
-- `$.Array[0]` refers to the first element of the `$.Array` array.
+- `["MyArray", 0]` refers to the first element of the `MyArray` array, which in
+  turn is a child of the root feed data object.
 
-Child property names and array indexes may be chained to arbitrary length.
+- Child property names and array indexes may be chained to arbitrary length.
 
-Note: The regular expressions contained in the JSON schemas below validate path
-syntax only. The overall validity of a delta operation cannot be determined by
-the schema, as it depends on the state of the feed data.
+The first element of a `Path` array must be a string if present, as the feed
+data root is always an object.
+
+Note: The JSON Schemas below validate path structure only. The ultimate validity
+of a path also depends on the state of the feed data and the operation being
+performed.
 
 ### Operations
 
@@ -1447,14 +1445,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Set",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": ...
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to one of the following:
+- `Path` (path array) must point to one of the following:
 
   1. An existing value of any type. Could refer to the root object, a child
      property of an object, or an element of an array.
@@ -1467,7 +1465,7 @@ Parameters:
      reference a zero index.
 
 - `Value` (any JSON value) is written to the referenced path. If the path
-  references the root of the feed data object, then `Value` must be an object.
+  references the root feed data object, then `Value` must be an object.
 
 Delta objects must satisfy the following JSON Schema:
 
@@ -1481,8 +1479,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Set"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {}
   },
@@ -1501,13 +1517,13 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Delete",
-  "Path": "SOME_PATH"
+  "Path": [ ... ]
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to one of the following:
+- `Path` (path array) must point to one of the following:
 
   1. An existing child property of an object.
 
@@ -1525,8 +1541,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Delete"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     }
   },
   "required": ["Operation", "Path"],
@@ -1544,14 +1578,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "DeleteValue",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": ...
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to one of the following:
+- `Path` (path array) must point to one of the following:
 
   - An existing object (may be the root object).
 
@@ -1572,8 +1606,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["DeleteValue"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {}
   },
@@ -1594,14 +1646,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Prepend",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": "SOME_STRING"
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing string value.
+- `Path` (path array) must point to an existing string value.
 
 - `Value` (string) is prepended to the referenced string.
 
@@ -1617,8 +1669,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Prepend"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {
       "type": "string"
@@ -1638,14 +1708,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Append",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": "SOME_STRING"
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing string value.
+- `Path` (path array) must point to an existing string value.
 
 - `Value` (string) is appended to the referenced string.
 
@@ -1661,8 +1731,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Append"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {
       "type": "string"
@@ -1684,14 +1772,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Increment",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": 1
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing number.
+- `Path` (path array) must point to an existing number.
 
 - `Value` (number) is added to the referenced number.
 
@@ -1707,8 +1795,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Increment"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {
       "type": "number"
@@ -1728,14 +1834,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Decrement",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": 1
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing number.
+- `Path` (path array) must point to an existing number.
 
 - `Value` (number) is subtracted from the referenced number.
 
@@ -1751,8 +1857,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Decrement"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {
       "type": "number"
@@ -1774,13 +1898,13 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "Toggle",
-  "Path": "SOME_PATH"
+  "Path": [ ... ]
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing boolean value.
+- `Path` (path array) must point to an existing boolean value.
 
 Delta objects must satisfy the following JSON Schema:
 
@@ -1794,8 +1918,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["Toggle"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     }
   },
   "required": ["Operation", "Path"],
@@ -1820,14 +1962,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "InsertFirst",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": ...
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing array.
+- `Path` (path array) must point to an existing array.
 
 - `Value` (any JSON value) is inserted at the beginning of the referenced array.
 
@@ -1843,8 +1985,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["InsertFirst"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {}
   },
@@ -1862,14 +2022,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "InsertLast",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": ...
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing array.
+- `Path` (path array) must point to an existing array.
 
 - `Value` (any JSON value) is inserted at the end of the referenced array.
 
@@ -1885,8 +2045,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["InsertLast"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {}
   },
@@ -1905,14 +2083,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "InsertBefore",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": ...
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing element of an array.
+- `Path` (path array) must point to an existing element of an array.
 
 - `Value` (any JSON value) is inserted before the referenced array element.
 
@@ -1928,8 +2106,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["InsertBefore"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {}
   },
@@ -1948,14 +2144,14 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "InsertAfter",
-  "Path": "SOME_PATH",
+  "Path": [ ... ],
   "Value": ...
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing element of an array.
+- `Path` (path array) must point to an existing element of an array.
 
 - `Value` (any JSON value) is inserted after the referenced array element.
 
@@ -1971,8 +2167,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["InsertAfter"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     },
     "Value": {}
   },
@@ -1990,13 +2204,13 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "DeleteFirst",
-  "Path": "SOME_PATH"
+  "Path": [ ... ]
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing array.
+- `Path` (path array) must point to an existing array.
 
 Delta objects must satisfy the following JSON Schema:
 
@@ -2010,8 +2224,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["DeleteFirst"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     }
   },
   "required": ["Operation", "Path"],
@@ -2028,13 +2260,13 @@ Delta objects take the following form:
 ```json
 {
   "Operation": "DeleteLast",
-  "Path": "SOME_PATH"
+  "Path": [ ... ]
 }
 ```
 
 Parameters:
 
-- `Path` (path string) must point to an existing array.
+- `Path` (path array) must point to an existing array.
 
 Delta objects must satisfy the following JSON Schema:
 
@@ -2048,8 +2280,26 @@ Delta objects must satisfy the following JSON Schema:
       "enum": ["DeleteLast"]
     },
     "Path": {
-      "type": "string",
-      "pattern": "^\\$(((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\]))((\\.[A-Za-z][A-Za-z0-9]*)|(\\[(('[^']+'))\\])|(\\[[0-9]+\\]))*)?$"
+      "type": "array",
+      "items": [
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "additionalItems": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "number",
+            "multipleOf": 1,
+            "minimum": 0
+          }
+        ]
+      }
     }
   },
   "required": ["Operation", "Path"],
