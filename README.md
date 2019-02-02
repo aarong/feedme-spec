@@ -916,8 +916,8 @@ Client behavior:
 - The client must follow the behavior prescribed in the `FeedOpen` section.
 
 - If the feed is not understood to be `opening`, then the server has violated
-  the specification. The client should understand the feed to be `open` and may
-  attempt to close it.
+  the specification. The client should understand the feed to be `open` or
+  `closed` according to the value of `Success`.
 
 Server behavior:
 
@@ -1061,8 +1061,8 @@ Client behavior:
 - The client must follow the behavior prescribed in the `FeedClose` section.
 
 - If the feed is not understood to be `closing`, then the server has violated
-  the specification. The client should understand the feed to be `closed` and
-  may attempt to open it.
+  the specification. The client should understand the feed to be `open` or
+  `closed` according to the value of `Success`.
 
 Server behavior:
 
