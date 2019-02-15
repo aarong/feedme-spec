@@ -1,6 +1,6 @@
 # Feedme Specification
 
-Version 0.1
+Version 0.1 - Working Draft
 
 This document (the "specification") prescribes the JSON message format and
 messaging behavior to be used by Feedme real-time API servers and their clients.
@@ -64,7 +64,7 @@ Implementations of this specification enable clients to:
 
 1. Perform operations on a server and be notified about the result.
 2. Access live data on the server and be notified when and why it changes.
-3. Subscribe to notifications about third-party operations on the server.
+3. Subscribe to notifications about operations on the server.
 
 The first objective is achieved using `Actions`; the second and third are
 achieved using actions in conjunction with `Feeds`. A Feedme API is a
@@ -84,11 +84,11 @@ communication channel is referred to in the abstract as the `Transport`.
 
 Minimal functionality is required of the transport. Once connected, it must
 enable the client and server to exchange string JSON messages of sufficient
-length for the API running through it. The transport must also ensure that
-messages are received by the other side in the order that they were sent.
+length to support the API running through it. The transport must also ensure
+that messages are received by the other side in the order that they were sent.
 
-Feedme APIs are free to support more than one transport. The set of available
-transports should be documented for API clients.
+Feedme APIs may support more than one transport. Supported transports should be
+documented for API clients.
 
 ### Handshakes
 
@@ -99,7 +99,7 @@ a `Handshake` to initiate the Feedme conversation.
 
 Clients perform operations on the server by invoking `Actions`. Clients indicate
 the action to be performed by specifying an `Action Name` and may supply
-`Action Arguments` describing the specifics of the action.
+`Action Arguments` with further specifics.
 
 When a client performs an action successfully, the server returns `Action Data`
 describing the outcome of the action.
@@ -111,7 +111,7 @@ clients:
 
 - The required structure of action arguments.
 
-- The structure of returned action data.
+- The structure of resulting action data.
 
 ### Feeds
 
@@ -198,7 +198,7 @@ Clients can send four types of messages:
 
 - `FeedOpen` asks to open a feed.
 
-- `FeedClose` asks to close a feed.
+- `FeedClose` closes a feed.
 
 ### Handshake
 
@@ -442,7 +442,8 @@ Messages must satisfy the following JSON Schema:
 
 ### FeedClose
 
-A `FeedClose` message asks to close a feed.
+A `FeedClose` message instructs the server close a feed. Clients are always free
+to close any feeds that they have open.
 
 Messages take the following form:
 
@@ -472,24 +473,18 @@ Client behavior:
   to transmit `FeedOpen` and `FeedClose` messages referencing other feed
   name-argument combinations.
 
-- The `FeedCloseResponse` message from the server will indicate whether the
-  client should understand the feed to be `closed` (success) or `open` (error).
-
 Server behavior:
 
-- The server must honor the client's request unless something unexpected occurs.
+- The server must honor the client's request unless the client message violates
+  the specification.
 
 - If the feed name-argument combination referenced by a `FeedClose` message is
   `open` for that client, the server must consider the feed to be `closing`
   until it has responded with a `FeedCloseResponse` message.
 
-  - If the `FeedCloseResponse` message indicates success, the server must
-    consider the feed to be `closed` and transmit no further messages
-    referencing the feed.
-
-  - If the `FeedCloseResponse` message indicates failure, the server must
-    consider the feed to be `open` and transmit any subsequent
-    `ActionRevelation` messages promised by the API.
+  - The server must subsequently transmit a `FeedCloseResponse` message
+    indicating success, after which the server must consider the feed to be
+    `closed` and transmit no further messages referencing the feed.
 
 - If the feed name-argument combination referenced by a `FeedClose` message is
   not `open` for that client, then the client has violated the specification.
@@ -498,7 +493,8 @@ Server behavior:
   - If the feed is `opening` then the server should respond with a
     `FeedCloseResponse` message indicating failure with error code `OPENING`.
     The client should understand the feed to be `opening` and should know to
-    expect a `FeedOpenResponse` message.
+    expect a `FeedOpenResponse` message. This is the only circumstance in which
+    a `FeedCloseResponse` may return failure.
 
   - If the feed is `closing` then the server should disregard the message. It
     must still respond to the client's previous `FeedClose` message. The client
@@ -787,7 +783,7 @@ Client behavior:
 
 - The client must follow the behavior prescribed in the `Action` section.
 
-- If the `CallbackId` specified by the server is not expected, then the server
+- If the `CallbackId` specified by the server is not recognized, then the server
   has violated the specification and the client should discard the message.
 
 Server behavior:
@@ -916,8 +912,7 @@ Client behavior:
 - The client must follow the behavior prescribed in the `FeedOpen` section.
 
 - If the feed is not understood to be `opening`, then the server has violated
-  the specification. The client should understand the feed to be `open` or
-  `closed` according to the value of `Success`.
+  the specification and the client should discard the message.
 
 Server behavior:
 
@@ -1061,8 +1056,7 @@ Client behavior:
 - The client must follow the behavior prescribed in the `FeedClose` section.
 
 - If the feed is not understood to be `closing`, then the server has violated
-  the specification. The client should understand the feed to be `open` or
-  `closed` according to the value of `Success`.
+  the specification and the client should discard the message
 
 Server behavior:
 
@@ -1208,11 +1202,9 @@ Client behavior:
   2. Take an MD5 hash of that text, encode it as a Base64 string, and validate
      it against the hash string transmitted by the server.
 
-  3. Close the feed if the hash check fails. The client may attempt to re-open
-     the feed.
-
-- The client should back off its close and re-open requests if it is
-  experiencing problems.
+  3. If the hash check fails, then the server has seemingly violated the
+     specification. The client should close the feed and may attempt to re-open
+     it.
 
 Server behavior:
 
@@ -1335,8 +1327,8 @@ Client behavior:
 - The client must not respond to the server.
 
 - If the feed referenced by the message is not understood to be `open`, then the
-  server has violated the specification. The client should understand the feed
-  to be `closed` and may attempt to open it.
+  server has violated the specification and the client should discard the
+  message.
 
 Server behavior:
 
