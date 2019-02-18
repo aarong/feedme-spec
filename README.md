@@ -1021,68 +1021,25 @@ Messages must satisfy the following JSON Schema:
 ```json
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "oneOf": [
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "type": "string",
-          "enum": ["FeedCloseResponse"]
-        },
-        "FeedName": {
-          "type": "string",
-          "minLength": 1
-        },
-        "FeedArgs": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      },
-      "required": ["MessageType", "Success", "FeedName", "FeedArgs"],
-      "additionalProperties": false
+  "type": "object",
+  "properties": {
+    "MessageType": {
+      "type": "string",
+      "enum": ["FeedCloseResponse"]
     },
-    {
+    "FeedName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "FeedArgs": {
       "type": "object",
-      "properties": {
-        "MessageType": {
-          "type": "string",
-          "enum": ["FeedCloseResponse"]
-        },
-        "Success": {
-          "type": "boolean",
-          "enum": [false]
-        },
-        "FeedName": {
-          "type": "string",
-          "minLength": 1
-        },
-        "FeedArgs": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "ErrorCode": {
-          "type": "string",
-          "minLength": 1
-        },
-        "ErrorData": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "MessageType",
-        "Success",
-        "FeedName",
-        "FeedArgs",
-        "ErrorCode",
-        "ErrorData"
-      ],
-      "additionalProperties": false
+      "additionalProperties": {
+        "type": "string"
+      }
     }
-  ]
+  },
+  "required": ["MessageType", "FeedName", "FeedArgs"],
+  "additionalProperties": false
 }
 ```
 
