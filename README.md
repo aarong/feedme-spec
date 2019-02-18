@@ -25,7 +25,7 @@ messaging behavior to be used by Feedme real-time API servers and their clients.
   - [FeedClose](#feedclose)
 - [Server-originating Message Types](#server-originating-message-types)
   - [Responses to Client Messages](#responses-to-client-messages)
-    - [MalformedResponse](#malformedresponse)
+    - [ViolationResponse](#violationresponse)
     - [HandshakeResponse](#handshakeresponse)
     - [ActionResponse](#actionresponse)
     - [FeedOpenResponse](#feedopenresponse)
@@ -395,20 +395,7 @@ Server behavior:
 
 - If the feed name-argument combination referenced by a `FeedOpen` message is
   not `closed` for that client, then the client has violated the specification.
-  The server should react as follows:
-
-  - If the feed is `opening` then the server should disregard the message. It
-    must still respond to the client's previous `FeedOpen` message. The client
-    should understand the feed to be `opening`.
-
-  - If the feed is `open` then the server should respond with a
-    `FeedOpenResponse` message indicating success. The client should understand
-    the feed to be `open`.
-
-  - If the feed is `closing` then the server should respond with a
-    `FeedOpenResponse` message indicating failure with error code `CLOSING`. The
-    client should understand the feed to be `closing` and should know to expect
-    a `FeedCloseResponse` message.
+  The server must respond with a `ViolationResponse` message.
 
 - The server is not obligated to respond to `FeedOpen` messages in the order
   that they are received.
@@ -488,21 +475,7 @@ Server behavior:
 
 - If the feed name-argument combination referenced by a `FeedClose` message is
   not `open` for that client, then the client has violated the specification.
-  The server should react as follows:
-
-  - If the feed is `opening` then the server should respond with a
-    `FeedCloseResponse` message indicating failure with error code `OPENING`.
-    The client should understand the feed to be `opening` and should know to
-    expect a `FeedOpenResponse` message. This is the only circumstance in which
-    a `FeedCloseResponse` may return failure.
-
-  - If the feed is `closing` then the server should disregard the message. It
-    must still respond to the client's previous `FeedClose` message. The client
-    should understand the feed to be `closing`.
-
-  - If the feed is `closed` then the server should respond with a
-    `FeedCloseResponse` message indicating success. The client should understand
-    the feed to be `closed`.
+  The server must respond with a `ViolationResponse` message.
 
 - The server is not obligated to respond to `FeedClose` messages in the order
   that they are received.
@@ -540,7 +513,7 @@ Servers can send seven types of messages.
 
 Five message types are responses to client-originating messages:
 
-- `MalformedResponse` responds to a client message that violates the
+- `ViolationResponse` responds to a client message that violates the
   specification.
 
 - `HandshakeResponse` responds to a client `Handshake` message.
@@ -560,16 +533,16 @@ developments on open feeds:
 
 ### Responses to Client Messages
 
-#### MalformedResponse
+#### ViolationResponse
 
-A `MalformedResponse` message responds to a client message that violates the
-core format prescribed in the specification.
+A `ViolationResponse` message responds to a client message that violates the
+specification.
 
 Messages take the following form:
 
 ```json
 {
-  "MessageType": "MalformedResponse",
+  "MessageType": "ViolationResponse",
   "ErrorCode": "SOME_ERROR_CODE",
   "ErrorData": { ... }
 }
@@ -588,16 +561,24 @@ Client behavior:
 
 Server behavior:
 
-- The server must respond with a `MalformedResponse` if it receives a client
+- The server must respond with a `ViolationResponse` if it receives a client
   message that is not valid JSON. In this case, the `ErrorCode` parameter must
   be `INVALID_JSON`.
 
-- The server must respond with a `MalformedResponse` if it receives a client
-  message that is valid JSON but does not satisfy any of the JSON Schemas laid
-  out in the specification. In this case, the `ErrorCode` parameter must be
+- The server must respond with a `ViolationResponse` if it receives a client
+  message that is valid JSON but does not satisfy the JSON Schemas laid out in
+  the specification. In this case, the `ErrorCode` parameter must be
   `INVALID_MESSAGE_STRUCTURE`.
 
-- The server must not transmit any other `MalformedResponse` messages.
+- The server must respond with a `ViolationResponse` if it receives a client
+  message attempting to `FeedOpen` a feed that is not currently closed. In this
+  case, the `ErrorCode` parameter must be `INVALID_FEED_OPEN`.
+
+- The server must respond with a `ViolationResponse` if it receives a client
+  message attempting to `FeedClose` a feed that is not currently open. In this
+  case, the `ErrorCode` parameter must be `INVALID_FEED_CLOSE`.
+
+- The server must not transmit any other `ViolationResponse` messages.
 
 Messages must satisfy the following JSON Schema:
 
@@ -608,7 +589,7 @@ Messages must satisfy the following JSON Schema:
   "properties": {
     "MessageType": {
       "type": "string",
-      "enum": ["MalformedResponse"]
+      "enum": ["ViolationResponse"]
     },
     "ErrorCode": {
       "type": "string",
@@ -1003,48 +984,21 @@ Messages must satisfy the following JSON Schema:
 
 #### FeedCloseResponse
 
-A `FeedCloseResponse` message responds to a client `FeedClose` message.
+A `FeedCloseResponse` message responds to a client `FeedClose` message and
+indicates that the feed has been closed successfully. The server may not return
+failure.
 
-If returning failure, messages take the following form:
-
-```json
-{
-  "MessageType": "FeedCloseResponse",
-  "Success": false,
-  "FeedName": "SOME_FEED_NAME",
-  "FeedArgs": { ... },
-  "ErrorCode": "SOME_ERROR_CODE",
-  "ErrorData": { ... }
-}
-```
-
-Failure parameters:
-
-- `Success` (boolean) is set to false, indicating failure.
-
-- `FeedName` (string) is the feed name specified by the client.
-
-- `FeedArgs` (object of strings) contains any feed arguments specified by the
-  client.
-
-- `ErrorCode` (string) indicates the nature of the problem.
-
-- `ErrorData` (object) may contain further diagnostic information.
-
-If returning success, messages take the following form:
+Messages take the following form:
 
 ```json
 {
   "MessageType": "FeedCloseResponse",
-  "Success": true,
   "FeedName": "SOME_FEED_NAME",
   "FeedArgs": { ... }
 }
 ```
 
-Success parameters:
-
-- `Success` (boolean) is set to true, indicating success.
+Parameters:
 
 - `FeedName` (string) is the feed name specified by the client.
 
@@ -1074,10 +1028,6 @@ Messages must satisfy the following JSON Schema:
         "MessageType": {
           "type": "string",
           "enum": ["FeedCloseResponse"]
-        },
-        "Success": {
-          "type": "boolean",
-          "enum": [true]
         },
         "FeedName": {
           "type": "string",
