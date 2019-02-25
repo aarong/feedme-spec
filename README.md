@@ -18,24 +18,35 @@ messaging behavior to be used by Feedme real-time API servers and their clients.
   - [Action Revelations](#action-revelations)
   - [Deltas](#deltas)
 - [Messages](#messages)
-- [Client-originating Message Types](#client-originating-message-types)
-  - [Handshake](#handshake)
-  - [Action](#action)
-  - [FeedOpen](#feedopen)
-  - [FeedClose](#feedclose)
-- [Server-originating Message Types](#server-originating-message-types)
-  - [Responses to Client Messages](#responses-to-client-messages)
-    - [ViolationResponse](#violationresponse)
-    - [HandshakeResponse](#handshakeresponse)
-    - [ActionResponse](#actionresponse)
-    - [FeedOpenResponse](#feedopenresponse)
-    - [FeedCloseResponse](#feedcloseresponse)
-  - [Feed Notifications](#feed-notifications)
-    - [ActionRevelation](#actionrevelation)
-    - [FeedTermination](#feedtermination)
-- [Feed Deltas](#feed-deltas)
-  - [Paths](#paths)
-  - [Operations](#operations)
+  - [Client-originating Message Types](#client-originating-message-types)
+    - [Handshake](#handshake)
+    - [Action](#action)
+    - [FeedOpen](#feedopen)
+    - [FeedClose](#feedclose)
+  - [Server-originating Message Types](#server-originating-message-types)
+    - [Responses to Client Messages](#responses-to-client-messages)
+      - [ViolationResponse](#violationresponse)
+      - [HandshakeResponse](#handshakeresponse)
+      - [ActionResponse](#actionresponse)
+      - [FeedOpenResponse](#feedopenresponse)
+      - [FeedCloseResponse](#feedcloseresponse)
+    - [Feed Notifications](#feed-notifications)
+      - [ActionRevelation](#actionrevelation)
+      - [FeedTermination](#feedtermination)
+- [Message Sequencing](#message-sequencing)
+  - [Fundamentals](#fundamentals)
+  - [Handshakes](#handshakes-1)
+    - [Client](#client)
+    - [Server](#server)
+  - [Actions](#actions-1)
+  - [Feeds](#feeds-1)
+    - [Client](#client-1)
+    - [Server](#server-1)
+- [Feed Data](#feed-data)
+  - [Action Revelations](#action-revelations-1)
+  - [Feed Deltas](#feed-deltas)
+    - [Paths](#paths)
+    - [Operations](#operations)
     - [Multi-type Operations](#multi-type-operations)
       - [Set](#set)
       - [Delete](#delete)
@@ -174,6 +185,9 @@ A feed's data can only change when an action is revealed on the feed.
 Messages exchanged in either direction across the transport must be valid
 JSON-encoded objects.
 
+Each client-originating message must receive exactly one response message from
+the server. The client must not respond to server-originating messages.
+
 Messages take the following form:
 
 ```json
@@ -188,7 +202,7 @@ Parameters:
 - `MessageType` (string) indicates the type of message being transmitted and
   puts additional requirements on the structure of the message.
 
-## Client-originating Message Types
+### Client-originating Message Types
 
 Clients can send four types of messages:
 
@@ -200,9 +214,15 @@ Clients can send four types of messages:
 
 - `FeedClose` closes a feed.
 
-### Handshake
+#### Handshake
 
 A `Handshake` message initiates the Feedme conversation.
+
+The server must respond to compliant `Handshake` messages with a
+`HandshakeResponse` message.
+
+The server must respond to non-compliant `Handshake` messages with a
+`ViolationError` message.
 
 Messages take the following form:
 
@@ -216,37 +236,8 @@ Messages take the following form:
 Parameters:
 
 - `Versions` (array of strings) indicates the Feedme specification versions
-  supported by the client, with preferred versions listed earlier. At this
-  stage, the current and only version of the specification is 0.1.
-
-Client behavior:
-
-- Once the transport is connected, clients must transmit only `Handshake`
-  messages until the server returns success, and must then transmit no further
-  `Handshake` messages.
-
-- Once the client has transmitted a `Handshake` message, it must await the
-  server's response before transmitting additional messages.
-
-- Once a handshake has been completed successfully, clients may transmit
-  `Action`, `FeedOpen`, and `FeedClose` messages.
-
-Server behavior:
-
-- Once a client has connected to the server via the transport, the server must
-  remain silent and await a `Handshake` message from the client.
-
-- When a `Handshake` message is received from the client, the server must
-  respond with a `HandshakeResponse` message.
-
-- The server must return failure with error code `UNEXPECTED` if the client has
-  already performed a successful handshake.
-
-- The server must return failure with error code `INCOMPATIBLE` if it does not
-  support any of the Feedme specification versions listed by the client.
-
-- The server is not obligated to abide by the version preference ordering
-  indicated by the client.
+  supported by the client. At this stage, the current and only version of the
+  specification is 0.1.
 
 Messages must satisfy the following JSON Schema:
 
@@ -272,9 +263,15 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-### Action
+#### Action
 
 An `Action` message asks to invoke an action on the server.
+
+The server must respond to compliant `Action` messages with an `ActionResponse`
+message.
+
+The server must respond to non-compliant `Action` messages with a
+`ViolationError` message.
 
 Messages take the following form:
 
@@ -295,21 +292,6 @@ Parameters:
 
 - `CallbackId` (string) is an arbitrary, client-determined callback identifier.
   It is returned with the server's response.
-
-Client behavior:
-
-- Clients are not obligated to await the response to one `Action` message before
-  transmitting another.
-
-Server behavior:
-
-- The server must respond with an `ActionResponse` message.
-
-- The server is not obligated to respond to `Action` messages in the order that
-  they are received.
-
-- If the action is successful, the server may reveal it on one or more relevant
-  feeds by transmitting `ActionRevelation` messages.
 
 Messages must satisfy the following JSON Schema:
 
@@ -339,9 +321,15 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-### FeedOpen
+#### FeedOpen
 
 A `FeedOpen` message asks to open feed.
+
+The server must respond to compliant `FeedOpen` messages with a
+`FeedOpenResponse` message.
+
+The server must respond to non-compliant `FeedOpen` messages with a
+`ViolationError` message.
 
 Messages take the following form:
 
@@ -358,47 +346,6 @@ Parameters:
 - `FeedName` (string) is the name of the feed to open.
 
 - `FeedArgs` (object of strings) contains any feed arguments.
-
-Client behavior:
-
-- Clients must initially understand all feed name-argument combinations to be
-  `closed`.
-
-- Clients must only transmit `FeedOpen` messages referencing feed name-argument
-  combinations that are understood to be `closed`.
-
-- Once a client has transmitted a `FeedOpen` message referencing a given feed
-  name-argument combination, it must consider that feed to be `opening` and
-  transmit no further `FeedOpen` or `FeedClose` messages referencing it until a
-  `FeedOpenResponse` message is returned by the server. The client may continue
-  to transmit `FeedOpen` and `FeedClose` messages referencing other feed
-  name-argument combinations.
-
-- The `FeedOpenResponse` message from the server will indicate whether the
-  client should understand the feed to be `open` (success) or `closed` (error).
-
-Server behavior:
-
-- The server must initiate clients with all feeds `closed`.
-
-- If the feed name-argument combination referenced by a `FeedOpen` message is
-  `closed` for that client, the server must consider the feed to be `opening`
-  until it has responded with a `FeedOpenResponse` message.
-
-  - If the `FeedOpenResponse` message indicates success, the server must
-    consider the feed to be `open` and transmit any subsequent
-    `ActionRevelation` messages promised by the API.
-
-  - If the `FeedOpenResponse` message indicates failure, the server must
-    consider the feed to be `closed` and transmit no further messages
-    referencing the feed.
-
-- If the feed name-argument combination referenced by a `FeedOpen` message is
-  not `closed` for that client, then the client has violated the specification.
-  The server must respond with a `ViolationResponse` message.
-
-- The server is not obligated to respond to `FeedOpen` messages in the order
-  that they are received.
 
 Messages must satisfy the following JSON Schema:
 
@@ -427,10 +374,15 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-### FeedClose
+#### FeedClose
 
-A `FeedClose` message instructs the server close a feed. Clients are always free
-to close any feeds that they have open.
+A `FeedClose` message instructs the server close a feed.
+
+The server must respond to compliant `FeedClose` messages with a
+`FeedCloseResponse` message.
+
+The server must respond to non-compliant `FeedClose` messages with a
+`ViolationError` message.
 
 Messages take the following form:
 
@@ -447,38 +399,6 @@ Parameters:
 - `FeedName` (string) is the name of the feed to close.
 
 - `FeedArgs` (object of strings) contains any feed arguments.
-
-Client behavior:
-
-- Clients must only transmit `FeedClose` messages referencing feed name-argument
-  combinations that are understood to be `open`.
-
-- Once a client has transmitted a `FeedClose` message referencing a given feed
-  name-argument combination, it must consider that feed to be `closing` and
-  transmit no further `FeedOpen` or `FeedClose` messages referencing it until a
-  `FeedCloseResponse` message is returned by the server. The client may continue
-  to transmit `FeedOpen` and `FeedClose` messages referencing other feed
-  name-argument combinations.
-
-Server behavior:
-
-- The server must honor the client's request unless the client message violates
-  the specification.
-
-- If the feed name-argument combination referenced by a `FeedClose` message is
-  `open` for that client, the server must consider the feed to be `closing`
-  until it has responded with a `FeedCloseResponse` message.
-
-  - The server must subsequently transmit a `FeedCloseResponse` message
-    indicating success, after which the server must consider the feed to be
-    `closed` and transmit no further messages referencing the feed.
-
-- If the feed name-argument combination referenced by a `FeedClose` message is
-  not `open` for that client, then the client has violated the specification.
-  The server must respond with a `ViolationResponse` message.
-
-- The server is not obligated to respond to `FeedClose` messages in the order
-  that they are received.
 
 Messages must satisfy the following JSON Schema:
 
@@ -507,9 +427,9 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-## Server-originating Message Types
+### Server-originating Message Types
 
-Servers can send seven types of messages.
+The server can send seven types of messages.
 
 Five message types are responses to client-originating messages:
 
@@ -531,9 +451,9 @@ developments on open feeds:
 
 - `FeedTermination` indicates that an open feed has been forcibly closed.
 
-### Responses to Client Messages
+#### Responses to Client Messages
 
-#### ViolationResponse
+##### ViolationResponse
 
 A `ViolationResponse` message responds to a client message that violates the
 specification.
@@ -543,42 +463,13 @@ Messages take the following form:
 ```json
 {
   "MessageType": "ViolationResponse",
-  "ErrorCode": "SOME_ERROR_CODE",
-  "ErrorData": { ... }
+  "Diagnostics": { ... }
 }
 ```
 
 Parameters:
 
-- `ErrorCode` (string) indicates the nature of the problem.
-
-- `ErrorData` (object) may contain further diagnostic information. It may
-  include the offending message string.
-
-Client behavior:
-
-- The client must transmit only valid messages.
-
-Server behavior:
-
-- The server must respond with a `ViolationResponse` if it receives a client
-  message that is not valid JSON. In this case, the `ErrorCode` parameter must
-  be `INVALID_JSON`.
-
-- The server must respond with a `ViolationResponse` if it receives a client
-  message that is valid JSON but does not satisfy the JSON Schemas laid out in
-  the specification. In this case, the `ErrorCode` parameter must be
-  `INVALID_MESSAGE_STRUCTURE`.
-
-- The server must respond with a `ViolationResponse` if it receives a client
-  message attempting to `FeedOpen` a feed that is not currently closed. In this
-  case, the `ErrorCode` parameter must be `INVALID_FEED_OPEN`.
-
-- The server must respond with a `ViolationResponse` if it receives a client
-  message attempting to `FeedClose` a feed that is not currently open. In this
-  case, the `ErrorCode` parameter must be `INVALID_FEED_CLOSE`.
-
-- The server must not transmit any other `ViolationResponse` messages.
+- `Diagnostics` (object) may contain debugging information.
 
 Messages must satisfy the following JSON Schema:
 
@@ -591,20 +482,16 @@ Messages must satisfy the following JSON Schema:
       "type": "string",
       "enum": ["ViolationResponse"]
     },
-    "ErrorCode": {
-      "type": "string",
-      "minLength": 1
-    },
-    "ErrorData": {
+    "Diagnostics": {
       "type": "object"
     }
   },
-  "required": ["MessageType", "ErrorCode", "ErrorData"],
+  "required": ["MessageType", "Diagnostics"],
   "additionalProperties": false
 }
 ```
 
-#### HandshakeResponse
+##### HandshakeResponse
 
 A `HandshakeResponse` message responds to a client `Handshake` message.
 
@@ -613,19 +500,13 @@ If returning failure, messages take the following form:
 ```json
 {
   "MessageType": "HandshakeResponse",
-  "Success": false,
-  "ErrorCode": "SOME_ERROR_CODE",
-  "ErrorData": { ... }
+  "Success": false
 }
 ```
 
 Failure parameters:
 
-- `Success` (boolean) is set to false, indicating failure.
-
-- `ErrorCode` (string) indicates the nature of the problem.
-
-- `ErrorData` (object) may contain further diagnostic information.
+- `Success` (boolean) is set to false, indicating no supported versions.
 
 If returning success, messages take the following form:
 
@@ -648,17 +529,6 @@ Success parameters:
 
 - `ClientId` (string) is a unique identifier assigned to the client by the
   server.
-
-Client behavior:
-
-- The client must follow the behavior prescribed in the `Handshake` section.
-
-- If the message is not expected, then the server has violated the specification
-  and the client should discard the message.
-
-Server behavior:
-
-- The server must follow the behavior prescribed in the `Handshake` section.
 
 Messages must satisfy the following JSON Schema:
 
@@ -699,23 +569,16 @@ Messages must satisfy the following JSON Schema:
         "Success": {
           "type": "boolean",
           "enum": [false]
-        },
-        "ErrorCode": {
-          "type": "string",
-          "minLength": 1
-        },
-        "ErrorData": {
-          "type": "object"
         }
       },
-      "required": ["MessageType", "Success", "ErrorCode", "ErrorData"],
+      "required": ["MessageType", "Success"],
       "additionalProperties": false
     }
   ]
 }
 ```
 
-#### ActionResponse
+##### ActionResponse
 
 An `ActionResponse` message responds to a client `Action` message.
 
@@ -759,17 +622,6 @@ Parameters:
 - `Success` (boolean) is set to true, indicating success.
 
 - `ActionData` (object) describes the action result.
-
-Client behavior:
-
-- The client must follow the behavior prescribed in the `Action` section.
-
-- If the `CallbackId` specified by the server is not recognized, then the server
-  has violated the specification and the client should discard the message.
-
-Server behavior:
-
-- The server must follow the behavior prescribed in the `Action` section.
 
 Messages must satisfy the following JSON Schema:
 
@@ -835,7 +687,7 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-#### FeedOpenResponse
+##### FeedOpenResponse
 
 A `FeedOpenResponse` message responds to a client `FeedOpen` message.
 
@@ -887,17 +739,6 @@ Success parameters:
   client.
 
 - `FeedData` (object) is the current feed data.
-
-Client behavior:
-
-- The client must follow the behavior prescribed in the `FeedOpen` section.
-
-- If the feed is not understood to be `opening`, then the server has violated
-  the specification and the client should discard the message.
-
-Server behavior:
-
-- The server must follow the behavior prescribed in the `FeedOpen` section.
 
 Messages must satisfy the following JSON Schema:
 
@@ -982,7 +823,7 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-#### FeedCloseResponse
+##### FeedCloseResponse
 
 A `FeedCloseResponse` message responds to a client `FeedClose` message and
 indicates that the feed has been closed successfully. The server may not return
@@ -1004,17 +845,6 @@ Parameters:
 
 - `FeedArgs` (object of strings) contains any feed arguments specified by the
   client.
-
-Client behavior:
-
-- The client must follow the behavior prescribed in the `FeedClose` section.
-
-- If the feed is not understood to be `closing`, then the server has violated
-  the specification and the client should discard the message
-
-Server behavior:
-
-- The server must follow the behavior prescribed in the `FeedClose` section.
 
 Messages must satisfy the following JSON Schema:
 
@@ -1043,9 +873,9 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-### Feed Notifications
+#### Feed Notifications
 
-#### ActionRevelation
+##### ActionRevelation
 
 An `ActionRevelation` message notifies a client that an action is being revealed
 on one of its open feeds.
@@ -1083,69 +913,6 @@ Parameters:
   after the feed deltas have been applied. It may be omitted if the server does
   not wish to enable feed data verification. If included, it must be exactly 24
   characters long.
-
-Client behavior:
-
-- The client must not respond to the server.
-
-- If the feed referenced by the message is not understood to be `open`, then the
-  server has violated the specification and the client should discard the
-  message.
-
-- The client must apply any feed delta operations to its local copy of the feed
-  data. Operations must be applied in array-order.
-
-- If the sequence of delta operations received from the server is invalid given
-  the current state of the feed data, then the server has violated the
-  specification. The client should close the feed and may attempt to re-open it.
-
-- If the server transmits a feed data hash, the client should validate its
-  post-delta copy of the feed data against it. To do so, the client must:
-
-  1. Generate a JSON encoding of its local feed data object. Canonicalize the
-     encoding by serializing object properties in lexicographical order and
-     removing all non-meaningful whitespace.
-
-  2. Take an MD5 hash of that text, encode it as a Base64 string, and validate
-     it against the hash string transmitted by the server.
-
-  3. If the hash check fails, then the server has seemingly violated the
-     specification. The client should close the feed and may attempt to re-open
-     it.
-
-Server behavior:
-
-- The server may use `ActionRevelation` messages to reveal:
-
-  1. `Client Actions` explicitly invoked using `Action` messages.
-
-  2. `Deemed Actions` that the server considers to have taken place without a
-     triggering `Action` message.
-
-- When revealing an action on a feed, the server must send all clients with that
-  feed open exactly one `ActionRevelation` message. The same message must be
-  sent to all clients.
-
-- If a client opens a feed and then performs an action that is revealed on that
-  feed, it must receive an `ActionRevelation` message like any other client with
-  that feed open. The server may transmit the `ActionResponse` and
-  `ActionRevelation` messages to that client in any order.
-
-- If the feed data has changed as a result of the action, then the server must
-  describe those changes by sending a sequence of delta operations as part of
-  the `ActionRevelation` message. Delta operations must be sequentially valid
-  given the current state of client feed data, as determined by the initial
-  `FeedOpenResponse` message and subsequent `ActionRevelation` messages.
-
-- Optionally, the server may enable feed data integrity checks by including a
-  `FeedMD5` parameter with the action revelation. In that case, it must:
-
-  1. Generate a JSON encoding of the post-delta feed data object. Canonicalize
-     the encoding by serializing object properties in lexicographical order and
-     removing all non-meaningful whitespace.
-
-  2. Take an MD5 hash of that text, encode it as a Base64 string, and transmit
-     it to the client as the `FeedMD5` parameter.
 
 Messages must satisfy the following JSON Schema:
 
@@ -1202,7 +969,7 @@ Messages must satisfy the following JSON Schema:
 Each element in the `FeedDeltas` array must also satisfy one of the feed delta
 schemas specified below.
 
-#### FeedTermination
+##### FeedTermination
 
 A `FeedTermination` message notifies a client that the server has forcibly
 closed a previously open feed.
@@ -1228,22 +995,6 @@ Parameters:
 - `ErrorCode` (string) indicates the reason for termination.
 
 - `ErrorData` (object) may contain further information.
-
-Client behavior:
-
-- The client must not respond to the server.
-
-- If the feed referenced by the message is not understood to be `open`, then the
-  server has violated the specification and the client should discard the
-  message.
-
-Server behavior:
-
-- The server must only transmit `FeedTermination` messages referencing feeds
-  that clients have `open`.
-
-- After transmitting a `FeedTermination` message, the server must transmit no
-  further messages referencing the specified feed.
 
 Messages must satisfy the following JSON Schema:
 
@@ -1279,7 +1030,350 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-## Feed Deltas
+## Message Sequencing
+
+Messages must be sequenced according to the following rules in order to ensure
+that the client and server maintain a common understanding of the state of the
+conversation.
+
+### Fundamentals
+
+The client steers the conversation. It initiates interaction by transmitting
+`Handshake`, `Action`, `FeedOpen`, and `FeedClose` messages as prescribed below.
+
+The server must transmit exactly one message in response to each
+client-originating message it receives. The server is not obligated to respond
+to client messages in the order that they are received.
+
+- If a client message violates any part of the specification, including the
+  sequencing requirements, then the server must respond with a
+  `ViolationResponse` message.
+
+- If a client message complies with the specification, then the server must
+  respond with a `HandshakeResponse`, `ActionResponse`, `FeedOpenResponse`, or
+  `FeedCloseResponse` as appropriate.
+
+When a feed is open, the server may also transmit `ActionRevelation` and
+`FeedTermination` messages referencing that feed. The client must not respond to
+these messages.
+
+The client should discard server messages that violate the specification.
+
+### Handshakes
+
+#### Client
+
+Once connected to the server via the transport, the client must treat the
+conversation as being in one of three states.
+
+The client must initially treat the conversation as `NotReady`.
+
+Client conversation states:
+
+1. `NotReady` - When the conversation is not ready...
+
+- The client must transmit a `Handshake` message to the server and subsequently
+  treat the conversation as `Handshaking`.
+
+- The client must not transmit any other type of message to the server.
+
+- The client must discard all server messages (server violation).
+
+2. `Handshaking` - When the conversation is handshaking...
+
+- The client must not transmit any messages to the server.
+
+- The client must expect a `HandshakeResponse` message from the server. When
+  that message is received, the client must subsequently treat the conversation
+  as either `Ready` or `NotReady` according to whether the server returned
+  success or failure.
+
+- The client must discard all other server messages (server violation).
+
+3. `Ready` - When the conversation is ready...
+
+- The client may transmit `Action`, `FeedOpen`, and `FeedClose` messages to the
+  server, subject to other sequencing requirements.
+
+- The client must not transmit `Handshake` messages to the server.
+
+- The client must expect `ActionResponse`, `FeedOpenResponse`,
+  `FeedCloseResponse`, `ActionRevelation`, and `FeedTermination` messages from
+  the server, subject to other sequencing requirements.
+
+- The client must discard `HandshakeResponse` messages from the server (server
+  violation).
+
+- The client should review its message history and debug if it receives a
+  `ViolationResponse` message from the server.
+
+#### Server
+
+Once a client has connected to the server via the transport, the server must
+treat the conversation as being in one of two states.
+
+The server must initially treat each client conversation as `NotReady`.
+
+Server conversation states:
+
+1. `NotReady` - When a conversation is not ready...
+
+- The server must not transmit any messages.
+
+- The server must expect a `Handshake` message from the client and must respond
+  with a `HandshakeResponse` message.
+
+  - If the server response indicates success, the server must subsequently treat
+    the conversation as `Ready`.
+
+  - If the server response indicates failure, the server must continue to treat
+    the conversation as `NotReady`.
+
+- The server must respond to any other client messages with a
+  `ViolationResponse` message.
+
+2. `Ready` - When a conversation is ready...
+
+- The server must expect `Action`, `FeedOpen`, and `FeedClose` messages from the
+  client, subject to other sequencing requirements. It must respond to such
+  messages by transmitting `ActionResponse`, `FeedOpenResponse`, and
+  `FeedCloseResponse` messages, respectively.
+
+- The server must respond to client `Handshake` messages with a
+  `ViolationResponse` message.
+
+- The server may transmit `ActionRevelation` and `FeedTermination` messages,
+  subject to other sequencing requirements.
+
+### Actions
+
+When the transport conversation is `Ready`, the client may transmit `Action`
+messages at its discretion. The server must respond to each such message by
+transmitting an `ActionResponse` indicating success or failure. The server's
+response must reference the callback identifier from the client message.
+
+Clients need not await the response to one `Action` message before transmitting
+another.
+
+If the client receives an `ActionResponse` message referencing a callback
+identifier that it does not associate with a previously-sent `Action` message,
+then the client should discard the message (server violation).
+
+### Feeds
+
+#### Client
+
+When the transport conversation is `Ready`, the client may transmit `FeedOpen`
+and `FeedClose` messages, subject to other sequencing requirements.
+
+The client must treat each feed name-argument combination (feed) as having one
+of five states. The state of a feed determines the set of client-originating
+messages that may reference that feed.
+
+The client must initially treat all feeds as `Closed`.
+
+Client feed states:
+
+1. `Closed` - When a feed is closed...
+
+- The client must transmit only `FeedOpen` messages referencing that feed. If
+  the client transmits a `FeedOpen` message, it must subsequently treat the
+  specified feed as `Opening`.
+
+- The client must discard all server messages referencing that feed (server
+  violation).
+
+2. `Opening` - When a feed is opening...
+
+- The client must not transmit any messages referencing that feed.
+
+- The client must expect a `FeedOpenResponse` message referencing that feed.
+  When that message is received, the client must subsequently treat the feed as
+  either `Open` or `Closed` according to whether the server returned success or
+  failure.
+
+- The client must discard all other server messages referencing that feed
+  (server violation).
+
+3. `Open` - When a feed is open...
+
+- The client must transmit only `FeedClose` messages referencing that feed. If
+  the client transmits a `FeedClose` message, it must subsequently treat the
+  specified feed as `Closing`.
+
+- The client must expect a sequence of `ActionRevelation` messages referencing
+  that feed.
+
+- The client must expect a `FeedTermination` message referencing that feed. If
+  received, the client must subsequently treat the feed as `Closed`.
+
+- The client must discard all other server messages referencing that feed
+  (server violation).
+
+4. `Closing` - When a feed is closing...
+
+- The client must not transmit any messages referencing that feed.
+
+- The client must expect a sequence of `ActionRevelation` messages referencing
+  that feed.
+
+- The client must expect a `FeedTermination` message referencing that feed. If
+  received, the client must subsequently treat the feed as `Terminated`.
+
+- The client must expect a `FeedCloseResponse` message referencing that feed.
+  When that message is received, the client must subsequently treat the feed as
+  `Closed`.
+
+- The client must discard all `FeedOpenResponse` messages transmitted by the
+  server (server violation).
+
+5. `Terminated` - When a feed is terminated...
+
+- The client transmitted a `FeedClose` message to the server, but received a
+  `FeedTermination` message before the `FeedCloseResponse`.
+
+- The client must not transmit any messages referencing that feed. The client
+  must await a `FeedCloseResponse` message, and when received must subsequently
+  treat the feed as `Closed`.
+
+- The client must discard all other server messages referencing that feed
+  (server violation).
+
+#### Server
+
+For each client, the server must treat each feed name-argument combination
+(feed) as having one of three states. The state of a feed determines the set of
+server-originating messages that may reference that feed.
+
+When a client connects, the server must initially treat all feeds as `Closed`.
+
+Server feed states:
+
+1. `Closed` - When a feed is closed...
+
+- The server must not transmit any messages referencing that feed.
+
+- The server must expect a `FeedOpen` message referencing that feed. If the
+  client transmits such a message, the server must respond with a
+  `FeedOpenResponse` message.
+
+  - If the `FeedOpenResponse` message indicates success, the server must
+    subsequently treat the feed as `Open`.
+
+  - If the `FeedOpenResponse` message indicates failure, the server must
+    continue to treat the feed as `Closed`.
+
+- The server must discard all `FeedClose` messages referencing that feed (client
+  violation).
+
+2. `Open` - When a feed is open...
+
+- The server may transmit a sequence of `ActionRevelation` messages referencing
+  that feed.
+
+- The server may transmit a `FeedTermination` message referencing that feed. If
+  such a message is transmitted, the server must subsequently treat the feed as
+  `Terminated`.
+
+- The server must expect a `FeedClose` message referencing that feed. If the
+  client transmits such a message, the server must respond with a
+  `FeedCloseResponse` message and subsequently treat the feed as `Closed`.
+
+- The server must discard all `FeedOpen` messages referencing that feed (client
+  violation).
+
+3. `Terminated` - When a feed is terminated...
+
+- The server must not transmit any messages referencing that feed.
+
+- The server must expect either a `FeedOpen` or a `FeedClose` message
+  referencing the feed.
+
+  - If the server receives a `FeedOpen` message, it must respond with a
+    `FeedOpenResponse` message indicating success or failure and, according to
+    that result, subsequently treat the feed as either `Open` or `Closed`.
+
+  - If the server receives a `FeedClose` message, it must respond with a
+    `FeedCloseResponse` message and subsequently treat the feed as `Closed`. If
+    the client is adhering to the specification, then it transmitted the
+    `FeedClose` message before receiving the server's `FeedTermination` message
+    and is not in violation of the specification.
+
+- After a period of time has elapsed, the server may deem the feed `Closed` and
+  treat it accordingly. The period of time should be appropriate for the latency
+  of the transport.
+
+## Feed Data
+
+Data for a given feed name-argument combination (feed) is returned with the server's
+successful `FeedOpenResponse` message and may be updated upon subsequent
+`ActionRevelation` messages referencing that feed.
+
+### Action Revelations
+
+Server behavior:
+
+- The server may use `ActionRevelation` messages to reveal:
+
+  1. `Client Actions` explicitly invoked using `Action` messages.
+
+  2. `Deemed Actions` that the server considers to have taken place without a
+     triggering `Action` message.
+
+- When revealing an action on a feed, the server must send all clients with that
+  feed open exactly one `ActionRevelation` message. The same message must be
+  sent to all clients.
+
+- If a client opens a feed and then performs an action that is revealed on that
+  feed, it must receive an `ActionRevelation` message like any other client with
+  that feed open. The server may transmit the `ActionResponse` and
+  `ActionRevelation` messages to that client in any order.
+
+- If the feed data has changed as a result of the action, then the server must
+  describe those changes by sending a sequence of delta operations as part of
+  the `ActionRevelation` message. Delta operations must be sequentially valid
+  given the current state of client feed data, as determined by the initial
+  `FeedOpenResponse` message and subsequent `ActionRevelation` messages.
+
+- Optionally, the server may enable feed data integrity checks by including a
+  `FeedMD5` parameter with the `ActionRevelation` message. In that case, it must:
+
+  1. Generate a JSON encoding of the post-delta feed data object. Canonicalize
+     the encoding by serializing object properties in lexicographical order and
+     removing all non-meaningful whitespace.
+
+  2. Take an MD5 hash of that text, encode it as a Base64 string, and transmit
+     it to the client as the `FeedMD5` parameter.
+
+  SOME OF THIS GOES TO ActionRevelation MAIN TEXT
+
+When the client receives a compliant `ActionRevelation` message, it:
+
+- Must apply any feed delta operations to its local copy of the feed
+  data. Operations must be applied in array-order. If the sequence of delta operations received from the server is invalid given
+  the current state of the feed data, as understood from the initial `FeedOpenResponse`
+  message and any subsequent `ActionRevelation` messages, then the client must close the feed
+  (server violation). The client may subsequently attempt to re-open the feed.
+
+- If the server transmits a feed data hash, the client should validate its
+  post-delta copy of the feed data against it. To do so, the client must:
+
+  1. Generate a JSON encoding of its local feed data object. Canonicalize the
+     encoding by serializing object properties in lexicographical order and
+     removing all non-meaningful whitespace.
+
+  2. Take an MD5 hash of that text, encode it as a Base64 string, and validate
+     it against the hash string transmitted by the server.
+
+  3. If the hash check fails, then the server has seemingly violated the
+     specification. The client should close the feed and may attempt to re-open
+     it.
+
+### Feed Deltas
+
+DEFINE SEQUENTIALLY-VALID DELTA OPERATIONS
+
+How do I reference deltas above? Parameters section of ActionRev - check
 
 When the server transmits an `ActionRevelation` message, it must include a
 `FeedDeltas` array describing any resulting changes to the feed data. Each
@@ -1306,7 +1400,7 @@ Parameters:
 - `Operation` (string) is the name of the delta operation to perform. Its value
   may put additional requirements on the feed delta object (including the path).
 
-### Paths
+#### Paths
 
 `Path` arrays are used to reference locations in the feed data object. Paths are
 specified according to the following rules:
@@ -1331,7 +1425,7 @@ Note: The JSON Schemas below validate path structure only. The ultimate validity
 of a path also depends on the state of the feed data and the operation being
 performed.
 
-### Operations
+#### Operations
 
 #### Multi-type Operations
 
