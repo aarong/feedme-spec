@@ -2196,7 +2196,8 @@ Delta objects take the following form:
 
 Parameters:
 
-- `Path` (path array) must point to an existing array.
+- `Path` (path array) must point to an existing array. The array must not be
+  empty.
 
 Delta objects must satisfy the following JSON Schema:
 
@@ -2252,7 +2253,8 @@ Delta objects take the following form:
 
 Parameters:
 
-- `Path` (path array) must point to an existing array.
+- `Path` (path array) must point to an existing array. The array must not be
+  empty.
 
 Delta objects must satisfy the following JSON Schema:
 
