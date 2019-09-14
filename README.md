@@ -294,6 +294,10 @@ Parameters:
 - `CallbackId` (string) is an arbitrary, client-determined callback identifier.
   It is returned with the server's response.
 
+  Once the client has transmitted an `Action` message with a given `CallbackId`,
+  it must not reuse that `CallbackId` in other `Action` messages until it has
+  received an `ActionResponse` from the server referencing the `CallbackId`.
+
 Messages must satisfy the following JSON Schema:
 
 ```json
