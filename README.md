@@ -223,7 +223,7 @@ The server must respond to compliant `Handshake` messages with a
 `HandshakeResponse` message.
 
 The server must respond to non-compliant `Handshake` messages with a
-`ViolationError` message.
+`ViolationResponse` message.
 
 Messages take the following form:
 
@@ -272,7 +272,7 @@ The server must respond to compliant `Action` messages with an `ActionResponse`
 message.
 
 The server must respond to non-compliant `Action` messages with a
-`ViolationError` message.
+`ViolationResponse` message.
 
 Messages take the following form:
 
@@ -330,7 +330,7 @@ The server must respond to compliant `FeedOpen` messages with a
 `FeedOpenResponse` message.
 
 The server must respond to non-compliant `FeedOpen` messages with a
-`ViolationError` message.
+`ViolationResponse` message.
 
 Messages take the following form:
 
@@ -383,7 +383,7 @@ The server must respond to compliant `FeedClose` messages with a
 `FeedCloseResponse` message.
 
 The server must respond to non-compliant `FeedClose` messages with a
-`ViolationError` message.
+`ViolationResponse` message.
 
 Messages take the following form:
 
