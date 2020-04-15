@@ -1,3 +1,5 @@
+[![Feedme](https://raw.githubusercontent.com/aarong/feedme-client/master/logo.svg?sanitize=true)](https://feedme.global)
+
 # Feedme Specification
 
 Version 0.1 - Working Draft
