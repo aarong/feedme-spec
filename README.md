@@ -521,8 +521,7 @@ If returning success, messages take the following form:
 {
   "MessageType": "HandshakeResponse",
   "Success": true,
-  "Version": "0.1",
-  "ClientId": "SOME_CLIENT_ID"
+  "Version": "0.1"
 }
 ```
 
@@ -533,9 +532,6 @@ Success parameters:
 - `Version` (string) is the Feedme specification version that will govern the
   conversation. It must have been selected from the list of supported versions
   indicated in the client `Handshake` message.
-
-- `ClientId` (string) is a unique identifier assigned to the client by the
-  server.
 
 Messages must satisfy the following JSON Schema:
 
@@ -557,13 +553,9 @@ Messages must satisfy the following JSON Schema:
         "Version": {
           "type": "string",
           "minLength": 1
-        },
-        "ClientId": {
-          "type": "string",
-          "minLength": 1
         }
       },
-      "required": ["MessageType", "Success", "Version", "ClientId"],
+      "required": ["MessageType", "Success", "Version"],
       "additionalProperties": false
     },
     {
