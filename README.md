@@ -4,8 +4,8 @@
 
 Version 0.1 - Working Draft
 
-This document prescribes the JSON message format and messaging behavior to be
-used by Feedme real-time API servers and their clients.
+This document prescribes the JSON message format and behavior to be used by
+Feedme real-time API servers and clients.
 
 [https://feedme.global](https://feedme.global)
 
@@ -15,17 +15,16 @@ used by Feedme real-time API servers and their clients.
 - [Concepts and Terms](#concepts-and-terms)
   - [Transport](#transport)
   - [Handshakes](#handshakes)
-  - [Actions](#actions)
   - [Feeds](#feeds)
-  - [Action Revelations](#action-revelations)
-  - [Deltas](#deltas)
+  - [Actions](#actions)
+  - [Action Notifications](#action-notifications)
 - [Messages](#messages)
-  - [Client-originating Message Types](#client-originating-message-types)
+  - [Client-Originating Message Types](#client-originating-message-types)
     - [Handshake](#handshake)
     - [Action](#action)
     - [FeedOpen](#feedopen)
     - [FeedClose](#feedclose)
-  - [Server-originating Message Types](#server-originating-message-types)
+  - [Server-Originating Message Types](#server-originating-message-types)
     - [Responses to Client Messages](#responses-to-client-messages)
       - [ViolationResponse](#violationresponse)
       - [HandshakeResponse](#handshakeresponse)
@@ -33,7 +32,7 @@ used by Feedme real-time API servers and their clients.
       - [FeedOpenResponse](#feedopenresponse)
       - [FeedCloseResponse](#feedcloseresponse)
     - [Feed Notifications](#feed-notifications)
-      - [ActionRevelation](#actionrevelation)
+      - [FeedAction](#feedaction)
       - [FeedTermination](#feedtermination)
 - [Message Sequencing](#message-sequencing)
   - [Fundamentals](#fundamentals)
@@ -41,11 +40,12 @@ used by Feedme real-time API servers and their clients.
     - [Client](#client)
     - [Server](#server)
   - [Actions](#actions-1)
-  - [Feeds](#feeds-1)
     - [Client](#client-1)
     - [Server](#server-1)
+  - [Feeds](#feeds-1)
+    - [Client](#client-2)
+    - [Server](#server-2)
 - [Feed Data](#feed-data)
-  - [Action Revelations](#action-revelations-1)
   - [Feed Deltas](#feed-deltas)
     - [Paths](#paths)
     - [Operations](#operations)
@@ -70,8 +70,8 @@ used by Feedme real-time API servers and their clients.
       - [DeleteLast](#deletelast)
   - [Integrity Verification](#integrity-verification)
 - [Violations of the Specification](#violations-of-the-specification)
-  - [Invalid Client-originating Messages](#invalid-client-originating-messages)
-  - [Invalid Server-originating Messages](#invalid-server-originating-messages)
+  - [Invalid Client-Originating Messages](#invalid-client-originating-messages)
+  - [Invalid Server-Originating Messages](#invalid-server-originating-messages)
 
 <!-- /TOC -->
 
@@ -80,7 +80,9 @@ used by Feedme real-time API servers and their clients.
 Implementations of this specification enable clients to:
 
 1. Perform operations on a server and be notified about the outcome.
+
 2. Access data on the server and be notified when and why it changes.
+
 3. Subscribe to notifications about operations on the server.
 
 The first objective is achieved using `Actions`; the second and third are
@@ -113,36 +115,15 @@ documented for API clients.
 Once a client has connected to the server via the transport, the client performs
 a `Handshake` to initiate the Feedme conversation.
 
-### Actions
-
-Clients perform operations on the server by invoking `Actions`. Clients indicate
-the action to be performed by specifying an `Action Name` and may supply
-`Action Arguments` with further specifics.
-
-When a client successfully performs an action, the server returns `Action Data`
-describing the outcome of the action.
-
-The following are determined by the API design and should be documented for API
-clients:
-
-- The set of available actions.
-
-- The required structure of action arguments.
-
-- The structure of resulting action data.
-
 ### Feeds
 
-Clients access live data and action notification streams using `Feeds`. Clients
-open feeds by specifying a `Feed Name` and may supply `Feed Arguments` with
-further specifics.
+Clients access live data and notification streams using `Feeds`. Clients `Open`
+feeds by specifying a `Feed Name` and may supply `Feed Arguments` with further
+specifics.
 
-When a client successfully opens a feed, the server returns the current
-`Feed Data` and commits to notifying the client about future changes to that
-data.
-
-Once a client has `Opened` a feed, the feed may later be `Closed` by the client
-or forcibly `Terminated` by the server.
+When a client opens a feed, the server returns the current `Feed Data` and
+commits to notifying the client about future changes to that data. The feed may
+later be `Closed` by the client or forcibly `Terminated` by the server.
 
 The following are determined by the API design and should be documented for API
 clients:
@@ -155,32 +136,46 @@ clients:
 
 - The conditions under which open feeds will be terminated.
 
-### Action Revelations
+### Actions
 
-When an action takes place on the server, the server may `Reveal` that action on
-one or more feeds. Clients with those feeds open are sent action data describing
-the action and a description of any resulting changes to the feed data.
+The core unit of behavior is the `Action`. Actions may be performed explicitly
+by clients or may be deemed to have occurred by the server.
 
-Action revelations can result from:
-
-1. Actions explicitly invoked by clients.
-
-2. Actions deemed by the server to have taken place, but not explicitly
-   initiated by a client.
+In order to perform an action, clients indicate an `Action Name` and may supply
+`Action Arguments` with further specifics. If the action is executed
+successfully, the server returns `Action Data` describing the outcome.
 
 The following are determined by the API design and should be documented for API
 clients:
 
-- The actions that are revealed on each feed.
+- The set of actions that may be invoked by clients.
 
-- The rules according to which actions are deemed to have taken place.
+- The required structure of their arguments.
 
-### Deltas
+- The structure of the resulting action data.
 
-When the server reveals an action on a feed, it may specify a sequence of
-`Deltas` describing any resulting changes to the feed data.
+### Action Notifications
 
-Feed data only changes when an action is revealed on the feed.
+When an action is invoked by a client or is deemed to have occurred by the
+server, the server may transmit an `Action Notification` on one or more open
+feeds.
+
+When the server notifies a client about an action on one its open feeds, the
+server specifies an `Action Name` and `Action Data` with further specifics.
+
+The server may also specify a sequence of `Deltas` describing any resulting
+changes to the feed data. Feed data can only change as a result of action
+notifications, so the client can understand both how and why the data is
+changing.
+
+The following are determined by the API design and should be documented for API
+clients:
+
+- The set of actions that can be notified on each feed.
+
+- The structure of any associated action data.
+
+- The manner in which actions modify the feed data.
 
 ## Messages
 
@@ -203,7 +198,7 @@ Parameters:
 - `MessageType` (string) indicates the type of message being transmitted and
   puts additional requirements on the structure of the message.
 
-### Client-originating Message Types
+### Client-Originating Message Types
 
 Clients can send four types of messages:
 
@@ -217,12 +212,12 @@ Clients can send four types of messages:
 
 #### Handshake
 
-A `Handshake` message initiates the Feedme conversation.
+A `Handshake` message is used to initiate the Feedme conversation.
 
-The server must respond to a compliant `Handshake` message with a
+The server must respond to a valid `Handshake` message with a
 `HandshakeResponse` message.
 
-The server must respond to a non-compliant `Handshake` message with a
+The server must respond to an invalid `Handshake` message with a
 `ViolationResponse` message.
 
 Messages take the following form:
@@ -266,12 +261,12 @@ Messages must satisfy the following JSON Schema:
 
 #### Action
 
-An `Action` message asks to invoke an action on the server.
+An `Action` message is used to invoke an action on the server.
 
-The server must respond to a compliant `Action` message with an `ActionResponse`
+The server must respond to a valid `Action` message with an `ActionResponse`
 message.
 
-The server must respond to a non-compliant `Action` message with a
+The server must respond to an invalid `Action` message with a
 `ViolationResponse` message.
 
 Messages take the following form:
@@ -295,8 +290,8 @@ Parameters:
   which is returned with the server's response.
 
   Once a client has transmitted an `Action` message with a given `CallbackId`,
-  it should not reuse that `CallbackId` in other `Action` messages until it has
-  received the associated `ActionResponse` from the server.
+  it must not reuse that `CallbackId` in another `Action` message until it has
+  received the associated `ActionResponse` message from the server.
 
 Messages must satisfy the following JSON Schema:
 
@@ -328,12 +323,12 @@ Messages must satisfy the following JSON Schema:
 
 #### FeedOpen
 
-A `FeedOpen` message asks to open feed.
+A `FeedOpen` message is used to open a feed.
 
-The server must respond to a compliant `FeedOpen` message with a
-`FeedOpenResponse` message.
+The server must respond to a valid `FeedOpen` message with a `FeedOpenResponse`
+message.
 
-The server must respond to a non-compliant `FeedOpen` message with a
+The server must respond to an invalid `FeedOpen` message with a
 `ViolationResponse` message.
 
 Messages take the following form:
@@ -381,12 +376,12 @@ Messages must satisfy the following JSON Schema:
 
 #### FeedClose
 
-A `FeedClose` message instructs the server close a feed.
+A `FeedClose` message instructs the server to close a feed.
 
-The server must respond to a compliant `FeedClose` message with a
+The server must respond to a valid `FeedClose` message with a
 `FeedCloseResponse` message.
 
-The server must respond to a non-compliant `FeedClose` message with a
+The server must respond to an invalid `FeedClose` message with a
 `ViolationResponse` message.
 
 Messages take the following form:
@@ -432,7 +427,7 @@ Messages must satisfy the following JSON Schema:
 }
 ```
 
-### Server-originating Message Types
+### Server-Originating Message Types
 
 The server can send seven types of messages.
 
@@ -452,7 +447,8 @@ Five message types are transmitted in response to client-originating messages:
 Two message types are initiated by the server to notify clients about
 developments on open feeds:
 
-- `ActionRevelation` reveals an action on an open feed.
+- `FeedAction` notifies the client about an action that has occurred on the
+  server.
 
 - `FeedTermination` indicates that a previously open feed has been forcibly
   closed.
@@ -462,7 +458,7 @@ developments on open feeds:
 ##### ViolationResponse
 
 A `ViolationResponse` is used to respond to any client message that violates the
-part of the specification.
+specification.
 
 Messages take the following form:
 
@@ -879,20 +875,20 @@ Messages must satisfy the following JSON Schema:
 
 #### Feed Notifications
 
-##### ActionRevelation
+##### FeedAction
 
-An `ActionRevelation` message notifies a client that an action is being revealed
-on one of its open feeds.
+A `FeedAction` message is used to notify a client about an action on one of its
+open feeds.
 
 Messages take the following form:
 
 ```json
 {
-  "MessageType": "ActionRevelation",
-  "ActionName": "SOME_ACTION_NAME",
-  "ActionData": { ... },
+  "MessageType": "FeedAction",
   "FeedName": "SOME_FEED_NAME",
   "FeedArgs": { ... },
+  "ActionName": "SOME_ACTION_NAME",
+  "ActionData": { ... },
   "FeedDeltas": [ ... ],
   "FeedMd5": "SOME_BASE64_MD5"
 }
@@ -900,23 +896,26 @@ Messages take the following form:
 
 Parameters:
 
-- `ActionName` (string) is the name of the action being revealed.
+- `FeedName` (string) is the name of the feed on which the client is receiving
+  the notification.
 
-- `ActionData` (object) is the action data for the action being revealed.
+- `FeedArgs` (object of strings) contains any arguments for the feed.
 
-- `FeedName` (string) is the name of the feed that the action is being revealed
-  on.
+- `ActionName` (string) is the name of the action that has occurred.
 
-- `FeedArgs` (object of strings) contains any arguments for the feed that the
-  action is being revealed on.
+- `ActionData` (object) is the action data for the action that has occurred. It
+  may differ from action data passed with other `FeedAction` and
+  `ActionResponse` messages.
 
 - `FeedDeltas` (array of delta objects) contains a sequence of operations to be
-  applied to the feed data.
+  applied to the feed data. It may differ from the deltas passed with other
+  `FeedAction` messages.
 
 - `FeedMd5` (optional string) is a Base64-encoded MD5 hash of the feed data
-  after the feed deltas have been applied. It may be omitted if the server does
-  not wish to enable feed data verification. If included, it must be exactly 24
-  characters long.
+  after the feed deltas have been applied. It will differ from the hashes passed
+  with other `FeedAction` messages if the post-delta feed data is also
+  different. It may be omitted if the server does not wish to enable feed data
+  verification. If included, it must be exactly 24 characters long.
 
 Messages must satisfy the following JSON Schema:
 
@@ -927,14 +926,7 @@ Messages must satisfy the following JSON Schema:
   "properties": {
     "MessageType": {
       "type": "string",
-      "enum": ["ActionRevelation"]
-    },
-    "ActionName": {
-      "type": "string",
-      "minLength": 1
-    },
-    "ActionData": {
-      "type": "object"
+      "enum": ["FeedAction"]
     },
     "FeedName": {
       "type": "string",
@@ -945,6 +937,13 @@ Messages must satisfy the following JSON Schema:
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "ActionName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ActionData": {
+      "type": "object"
     },
     "FeedDeltas": {
       "type": "array",
@@ -960,10 +959,10 @@ Messages must satisfy the following JSON Schema:
   },
   "required": [
     "MessageType",
-    "ActionName",
-    "ActionData",
     "FeedName",
     "FeedArgs",
+    "ActionName",
+    "ActionData",
     "FeedDeltas"
   ],
   "additionalProperties": false
@@ -975,8 +974,8 @@ schemas specified below.
 
 ##### FeedTermination
 
-A `FeedTermination` message notifies a client that the server has forcibly
-closed a previously open feed.
+A `FeedTermination` message is used to notify a client that the server has
+forcibly closed a previously open feed.
 
 Messages take the following form:
 
@@ -1056,9 +1055,9 @@ messages in the order that they are received.
 
 Once connected to the server via the transport, the client must treat the
 conversation as being in one of three states. The client must initially treat
-the conversation as `Not Ready`.
+the conversation as `Not Initiated`.
 
-1. `Not Ready` - When the conversation is in this state...
+1. `Not Initiated` - When the conversation is in this state...
 
 - The client must transmit a `Handshake` message to the server and subsequently
   treat the conversation as `Handshaking`. The client must not transmit any
@@ -1073,25 +1072,25 @@ the conversation as `Not Ready`.
 
 - If the server is complying with the specification, then the client will
   receive only a `HandshakeResponse` message. Once received, the client must
-  subsequently treat the conversation as either `Ready` or `Not Ready`,
+  subsequently treat the conversation as either `Initiated` or `Not Initiated`,
   depending on whether the server indicated success or failure.
 
-3. `Ready` - When the conversation is in this state...
+3. `Initiated` - When the conversation is in this state...
 
 - The client may transmit `Action`, `FeedOpen`, and `FeedClose` messages to the
   server at its discretion, subject to other sequencing requirements. The client
   must not transmit `Handshake` messages to the server.
 
 - If the server is complying with the specification, then the client may receive
-  `ActionResponse`, `FeedOpenResponse`, `FeedCloseResponse`, `ActionRevelation`,
-  and `FeedTermination` messages, subject to other sequencing requirements.
+  `ActionResponse`, `FeedOpenResponse`, `FeedCloseResponse`, `FeedAction`, and
+  `FeedTermination` messages, subject to other sequencing requirements.
 
 #### Server
 
 The server must treat each client conversation as being in one of three states.
-The server must initially treat client conversations as `Not Ready`.
+The server must initially treat client conversations as `Not Initiated`.
 
-1. `Not Ready` - When the conversation is in this state...
+1. `Not Initiated` - When the conversation is in this state...
 
 - The server must not transmit any messages to the client.
 
@@ -1102,16 +1101,16 @@ The server must initially treat client conversations as `Not Ready`.
 2. `Handshaking` - When the conversation is in this state...
 
 - The server must transmit a `HandshakeResponse` message to the client and
-  subsequently treat the conversation as either `Ready` or `Not Ready`,
+  subsequently treat the conversation as either `Initiated` or `Not Initiated`,
   depending on whether it indicated success or failure.
 
 - If the client is complying with the specification, the server will not receive
   any messages.
 
-3. `Ready` - When the conversation is in this state...
+3. `Initiated` - When the conversation is in this state...
 
 - The server may transmit `ActionResponse`, `FeedOpenResponse`,
-  `FeedCloseResponse`, `ActionRevelation`, and `FeedTermination` messages to the
+  `FeedCloseResponse`, `FeedAction`, and `FeedTermination` messages to the
   client, subject to other sequencing requirements. The server must not transmit
   `HandshakeResponse` messages to the client.
 
@@ -1121,12 +1120,19 @@ The server must initially treat client conversations as `Not Ready`.
 
 ### Actions
 
-Once a conversation is `Ready`, the client may transmit `Action` messages to the
-server at its discretion. Clients need not await the response to one `Action`
-message before transmitting another.
+#### Client
 
-The server must respond to each valid `Action` message by returning an
-`ActionResponse` message referencing the same callback identifier.
+Once a conversation is `Initiated`, the client may transmit `Action` messages to
+the server at its discretion. Clients need not await the response to one
+`Action` message before transmitting another.
+
+#### Server
+
+Once a conversation is `Initiated`, the server must respond to each valid
+`Action` message by returning an `ActionResponse` message referencing the same
+callback identifier. Any associated `FeedAction` messages sent to the client
+performing the action may be transmitted either before or after the
+`ActionResponse` message.
 
 ### Feeds
 
@@ -1170,8 +1176,8 @@ Client feed states:
 - The client must not transmit a `FeedOpen` message referencing the feed.
 
 - If the server is complying with the specification, then the client may receive
-  an `ActionRevelation` message referencing the feed. If received, then the
-  client must continue to treat the feed as `Open`.
+  an `FeedAction` message referencing the feed. If received, then the client
+  must continue to treat the feed as `Open`.
 
 - If the server is complying with the specification, then the client may receive
   a `FeedTermination` message referencing the feed. If received, then the client
@@ -1186,10 +1192,10 @@ Client feed states:
 - The client must not transmit any messages referencing the feed.
 
 - If the server is complying with the specification, then the client may receive
-  an `ActionRevelation` message referencing the feed. If the server is in
-  compliance, then it transmitted the `ActionRevelation` message before it
-  received the `FeedClose` message from the client. If received, then the client
-  must continue to treat the feed as `Closing`.
+  an `FeedAction` message referencing the feed. If the server is in compliance,
+  then it transmitted the `AFeedAction` message before it received the
+  `FeedClose` message from the client. If received, then the client must
+  continue to treat the feed as `Closing`.
 
 - If the server is complying with the specification, then the client may receive
   a `FeedTermination` message referencing the feed. If the server is in
@@ -1213,7 +1219,7 @@ Client feed states:
   must subsequently treat the feed as `Closed`.
 
 - If the server is complying with the specification, then the client will not
-  receive a `FeedOpenResponse`, `ActionRevelation`, or `FeedTermination` message
+  receive a `FeedOpenResponse`, `FeedAction`, or `FeedTermination` message
   referencing the feed.
 
 #### Server
@@ -1240,7 +1246,7 @@ Server feed states:
   subsequently treat the feed as either `Open` or `Closed`, depending on whether
   the message indicated success or failure.
 
-- The server must not transmit a `FeedCloseResponse`, `ActionRevelation`, or
+- The server must not transmit a `FeedCloseResponse`, `FeedAction`, or
   `FeedTermination` message referencing the feed.
 
 - If the client is complying with the specification, then the server will not
@@ -1248,7 +1254,7 @@ Server feed states:
 
 3. `Open` - When a client feed is in this state...
 
-- The server may, at its discretion, transmit an `ActionRevelation` message
+- The server may, at its discretion, transmit an `FeedAction` message
   referencing the feed. If sent, the server must continue to treat the feed as
   `Open`.
 
@@ -1271,7 +1277,7 @@ Server feed states:
 - The server must transmit a `FeedCloseResponse` message to the client and
   subsequently treat the feed as `Closed`.
 
-- The server must not transmit a `FeedOpenResponse`, `ActionRevelation`, or
+- The server must not transmit a `FeedOpenResponse`, `FeedAction`, or
   `FeedTermination` message referencing the feed.
 
 - If the client is complying with the specification, then the server will not
@@ -1298,47 +1304,29 @@ Server feed states:
 ## Feed Data
 
 When a client successfully opens a feed, the feed data is returned with the
-server's `FeedOpenResponse` message and may be updated by subsequent
-`ActionRevelation` messages referencing the feed.
+server's `FeedOpenResponse` message and may be modified by subsequent
+`FeedAction` messages.
 
-### Action Revelations
-
-The server may use `ActionRevelation` messages to reveal two type of actions:
-
-1. Actions explicitly invoked by clients using an `Action` message.
-
-2. Actions deemed by the server to have taken place without an associated client
-   `Action` message.
-
-When revealing an action on a feed, the server must send all clients with that
-feed open exactly one `ActionRevelation` message. The same message must be sent
-to all clients.
-
-If a client opens a feed and then performs an action that is revealed on that
-feed, it must receive an `ActionRevelation` message like any other client with
-that feed open. The server may transmit the `ActionResponse` and
-`ActionRevelation` messages to that client in any order.
+The server may use `FeedAction` messages to notify about actions explicitly
+invoked by clients using an `Action` message, as well as actions deemed by the
+server to have taken place without an associated client `Action` message.
 
 ### Feed Deltas
 
-When the server transmits an `ActionRevelation` message, it must include a
-`FeedDeltas` array describing any resulting changes to the feed data. Each
-element of the array must be a valid feed delta object describing an operation
-to be performed on the feed data. The server may transmit an empty `FeedDeltas`
-array to indicate that the feed data has not changed.
+When the server transmits a `FeedAction` message, it must include a `FeedDeltas`
+array describing any resulting changes to the feed data. Each element of the
+array must be a valid feed delta object describing an operation to be performed
+on the feed data. The server may transmit an empty `FeedDeltas` array to
+indicate that the feed data has not changed.
 
-When the client receives an `ActionRevelation` message, it must apply any feed
-delta operations to its local copy of the feed data. Operations must be applied
-in array order.
+When the client receives a `FeedAction` message, it must apply any feed delta
+operations to its local copy of the feed data. Operations must be applied in
+array order.
 
 Each delta operation transmitted by the server must be valid given the current
 state of client feed data, as determined by the initial `FeedOpenResponse`
-message, earlier `ActionRevelation` messages, and earlier operations in the
+message, earlier `FeedAction` messages, and operations located earlier in the
 `FeedDeltas` array.
-
-If the sequence of delta operations received from the server is invalid then the
-client should close the feed (server violation). The client may subsequently
-attempt to re-open the feed.
 
 Feed delta objects take the following form:
 
@@ -1455,8 +1443,8 @@ Delta objects must satisfy the following JSON Schema:
 
 ##### Delete
 
-The `Delete` operation removes an object child property (by name) or an array
-element (by index).
+The `Delete` operation removes an object child property by name or an array
+element by index.
 
 Delta objects take the following form:
 
@@ -2257,18 +2245,18 @@ Delta objects must satisfy the following JSON Schema:
 
 ### Integrity Verification
 
-When transmitting an `ActionRevelation` message, the server may optionally
-enable feed data integrity verification by including a `FeedMd5` parameter. In
-that case, the server must:
+When transmitting a `FeedAction` message, the server may optionally enable feed
+data integrity verification by including a `FeedMd5` parameter. In that case,
+the server must:
 
 1. Generate a JSON encoding of the post-delta feed data object. Canonicalize the
    encoding by serializing object properties in lexicographical order and
    removing all non-meaningful whitespace.
 
 2. Take an MD5 hash of that text, encode it as a Base64 string, and transmit it
-   to the client as the `FeedMd5` parameter of the `ActionRevelation` message.
+   to the client as the `FeedMd5` parameter of the `FeedAction` message.
 
-If the server transmits a feed data hash with an `ActionRevelation` message, the
+If the server transmits a feed data hash with an `FeedAction` message, the
 client should validate its post-delta copy of the feed data against it. To do
 so, the client must:
 
@@ -2284,17 +2272,17 @@ so, the client must:
 
 ## Violations of the Specification
 
-### Invalid Client-originating Messages
+### Invalid Client-Originating Messages
 
 If the server receives a client message that violates any part of the
 specification, then the server must respond with a `ViolationResponse` message.
 The server must respond in this manner if:
 
-- A client-originating message is not valid JSON
+- A client-originating message is not valid JSON.
 
-- A client-originating message is structurally invalid
+- A client-originating message is structurally invalid.
 
-- A client-originating message violates the message sequencing requirements
+- A client-originating message violates the message sequencing requirements.
 
 If the client transmits an invalid message, it is recommended that the server
 also disconnect the client, as the state of the conversation has become
@@ -2305,23 +2293,23 @@ recommended that the client disconnect from the server, as the state of the
 conversation has become ambiguous. The client may subsequently attempt to
 reconnect to the server.
 
-### Invalid Server-originating Messages
+### Invalid Server-Originating Messages
 
 If a client receives a message from the server that violates any part of the
 specification, it is recommended that the client disconnect from the server, as
 the state of the conversation has become ambiguous. The client should respond in
 this manner if:
 
-- A server-originating message is not valid JSON
+- A server-originating message is not valid JSON.
 
-- A server-originating message is structurally invalid
+- A server-originating message is structurally invalid.
 
-- A server-originating message violates the message sequencing requirements
+- A server-originating message violates the message sequencing requirements.
 
-- An `ActionRevelation` message specifies a delta operation that is invalid in
-  the context of the current feed data
+- A `FeedAction` message specifies a delta operation that is invalid in the
+  context of the current feed data.
 
-- An `ActionRevelation` message specifies a hash value that does not match the
-  post-delta feed data
+- A `FeedAction` message specifies a hash value that does not match the
+  post-delta feed data.
 
 The client may subsequently attempt to reconnect to the server.
