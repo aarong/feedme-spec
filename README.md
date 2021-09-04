@@ -1193,13 +1193,13 @@ Client feed states:
 
 - If the server is complying with the specification, then the client may receive
   an `FeedAction` message referencing the feed. If the server is in compliance,
-  then it transmitted the `AFeedAction` message before it received the
+  then it transmitted the `FeedAction` message before it received the
   `FeedClose` message from the client. If received, then the client must
   continue to treat the feed as `Closing`.
 
 - If the server is complying with the specification, then the client may receive
   a `FeedTermination` message referencing the feed. If the server is in
-  copmliance, then it transmitted the `FeedTermination` message before it
+  compliance, then it transmitted the `FeedTermination` message before it
   received the `FeedClose` message from the client. If received, then the client
   must subsequently treat the feed as `Terminated`.
 
