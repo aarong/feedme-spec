@@ -239,7 +239,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -297,7 +297,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -351,7 +351,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -404,7 +404,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -477,7 +477,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -536,7 +536,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "oneOf": [
     {
       "type": "object",
@@ -626,7 +626,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "oneOf": [
     {
       "type": "object",
@@ -744,7 +744,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "oneOf": [
     {
       "type": "object",
@@ -850,7 +850,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -921,7 +921,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -1003,7 +1003,7 @@ Messages must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "MessageType": {
@@ -1405,7 +1405,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1467,7 +1467,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1532,7 +1532,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1595,7 +1595,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1657,7 +1657,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1721,7 +1721,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1783,7 +1783,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1844,7 +1844,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1911,7 +1911,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -1971,7 +1971,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -2032,7 +2032,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -2093,7 +2093,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -2151,7 +2151,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
@@ -2208,7 +2208,7 @@ Delta objects must satisfy the following JSON Schema:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "Operation": {
