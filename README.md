@@ -243,8 +243,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["Handshake"]
+      "const": "Handshake"
     },
     "Versions": {
       "type": "array",
@@ -301,8 +300,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["Action"]
+      "const": "Action"
     },
     "ActionName": {
       "type": "string",
@@ -355,8 +353,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["FeedOpen"]
+      "const": "FeedOpen"
     },
     "FeedName": {
       "type": "string",
@@ -408,8 +405,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["FeedClose"]
+      "const": "FeedClose"
     },
     "FeedName": {
       "type": "string",
@@ -481,8 +477,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["ViolationResponse"]
+      "const": "ViolationResponse"
     },
     "Diagnostics": {
       "type": "object"
@@ -542,12 +537,10 @@ Messages must satisfy the following JSON Schema:
       "type": "object",
       "properties": {
         "MessageType": {
-          "type": "string",
-          "enum": ["HandshakeResponse"]
+          "const": "HandshakeResponse"
         },
         "Success": {
-          "type": "boolean",
-          "enum": [true]
+          "const": true
         },
         "Version": {
           "type": "string",
@@ -561,12 +554,10 @@ Messages must satisfy the following JSON Schema:
       "type": "object",
       "properties": {
         "MessageType": {
-          "type": "string",
-          "enum": ["HandshakeResponse"]
+          "const": "HandshakeResponse"
         },
         "Success": {
-          "type": "boolean",
-          "enum": [false]
+          "const": false
         }
       },
       "required": ["MessageType", "Success"],
@@ -632,16 +623,14 @@ Messages must satisfy the following JSON Schema:
       "type": "object",
       "properties": {
         "MessageType": {
-          "type": "string",
-          "enum": ["ActionResponse"]
+          "const": "ActionResponse"
         },
         "CallbackId": {
           "type": "string",
           "minLength": 1
         },
         "Success": {
-          "type": "boolean",
-          "enum": [true]
+          "const": true
         },
         "ActionData": {
           "type": "object"
@@ -654,16 +643,14 @@ Messages must satisfy the following JSON Schema:
       "type": "object",
       "properties": {
         "MessageType": {
-          "type": "string",
-          "enum": ["ActionResponse"]
+          "const": "ActionResponse"
         },
         "CallbackId": {
           "type": "string",
           "minLength": 1
         },
         "Success": {
-          "type": "boolean",
-          "enum": [false]
+          "const": false
         },
         "ErrorCode": {
           "type": "string",
@@ -750,12 +737,10 @@ Messages must satisfy the following JSON Schema:
       "type": "object",
       "properties": {
         "MessageType": {
-          "type": "string",
-          "enum": ["FeedOpenResponse"]
+          "const": "FeedOpenResponse"
         },
         "Success": {
-          "type": "boolean",
-          "enum": [true]
+          "const": true
         },
         "FeedName": {
           "type": "string",
@@ -784,12 +769,10 @@ Messages must satisfy the following JSON Schema:
       "type": "object",
       "properties": {
         "MessageType": {
-          "type": "string",
-          "enum": ["FeedOpenResponse"]
+          "const": "FeedOpenResponse"
         },
         "Success": {
-          "type": "boolean",
-          "enum": [false]
+          "const": false
         },
         "FeedName": {
           "type": "string",
@@ -854,8 +837,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["FeedCloseResponse"]
+      "const": "FeedCloseResponse"
     },
     "FeedName": {
       "type": "string",
@@ -925,8 +907,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["FeedAction"]
+      "const": "FeedAction"
     },
     "FeedName": {
       "type": "string",
@@ -1007,8 +988,7 @@ Messages must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "MessageType": {
-      "type": "string",
-      "enum": ["FeedTermination"]
+      "const": "FeedTermination"
     },
     "FeedName": {
       "type": "string",
@@ -1409,22 +1389,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Set"]
+      "const": "Set"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1471,22 +1448,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Delete"]
+      "const": "Delete"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1536,22 +1510,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["DeleteValue"]
+      "const": "DeleteValue"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1599,22 +1570,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Prepend"]
+      "const": "Prepend"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1661,22 +1629,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Append"]
+      "const": "Append"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1725,22 +1690,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Increment"]
+      "const": "Increment"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1787,22 +1749,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Decrement"]
+      "const": "Decrement"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1848,22 +1807,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["Toggle"]
+      "const": "Toggle"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1915,22 +1871,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["InsertFirst"]
+      "const": "InsertFirst"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -1975,22 +1928,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["InsertLast"]
+      "const": "InsertLast"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -2036,22 +1986,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["InsertBefore"]
+      "const": "InsertBefore"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -2097,22 +2044,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["InsertAfter"]
+      "const": "InsertAfter"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -2155,22 +2099,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["DeleteFirst"]
+      "const": "DeleteFirst"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
@@ -2212,22 +2153,19 @@ Delta objects must satisfy the following JSON Schema:
   "type": "object",
   "properties": {
     "Operation": {
-      "type": "string",
-      "enum": ["DeleteLast"]
+      "const": "DeleteLast"
     },
     "Path": {
       "type": "array",
       "items": [
         {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       ],
       "additionalItems": {
         "oneOf": [
           {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           {
             "type": "number",
