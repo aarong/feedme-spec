@@ -303,15 +303,13 @@ Messages must satisfy the following JSON Schema:
       "const": "Action"
     },
     "ActionName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "ActionArgs": {
       "type": "object"
     },
     "CallbackId": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     }
   },
   "required": ["MessageType", "ActionName", "ActionArgs", "CallbackId"],
@@ -356,8 +354,7 @@ Messages must satisfy the following JSON Schema:
       "const": "FeedOpen"
     },
     "FeedName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "FeedArgs": {
       "type": "object",
@@ -408,8 +405,7 @@ Messages must satisfy the following JSON Schema:
       "const": "FeedClose"
     },
     "FeedName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "FeedArgs": {
       "type": "object",
@@ -543,8 +539,7 @@ Messages must satisfy the following JSON Schema:
           "const": true
         },
         "Version": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         }
       },
       "required": ["MessageType", "Success", "Version"],
@@ -626,8 +621,7 @@ Messages must satisfy the following JSON Schema:
           "const": "ActionResponse"
         },
         "CallbackId": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "Success": {
           "const": true
@@ -646,15 +640,13 @@ Messages must satisfy the following JSON Schema:
           "const": "ActionResponse"
         },
         "CallbackId": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "Success": {
           "const": false
         },
         "ErrorCode": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "ErrorData": {
           "type": "object"
@@ -743,8 +735,7 @@ Messages must satisfy the following JSON Schema:
           "const": true
         },
         "FeedName": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "FeedArgs": {
           "type": "object",
@@ -775,8 +766,7 @@ Messages must satisfy the following JSON Schema:
           "const": false
         },
         "FeedName": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "FeedArgs": {
           "type": "object",
@@ -785,8 +775,7 @@ Messages must satisfy the following JSON Schema:
           }
         },
         "ErrorCode": {
-          "type": "string",
-          "minLength": 1
+          "type": "string"
         },
         "ErrorData": {
           "type": "object"
@@ -840,8 +829,7 @@ Messages must satisfy the following JSON Schema:
       "const": "FeedCloseResponse"
     },
     "FeedName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "FeedArgs": {
       "type": "object",
@@ -910,8 +898,7 @@ Messages must satisfy the following JSON Schema:
       "const": "FeedAction"
     },
     "FeedName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "FeedArgs": {
       "type": "object",
@@ -920,8 +907,7 @@ Messages must satisfy the following JSON Schema:
       }
     },
     "ActionName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "ActionData": {
       "type": "object"
@@ -991,8 +977,7 @@ Messages must satisfy the following JSON Schema:
       "const": "FeedTermination"
     },
     "FeedName": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "FeedArgs": {
       "type": "object",
@@ -1001,8 +986,7 @@ Messages must satisfy the following JSON Schema:
       }
     },
     "ErrorCode": {
-      "type": "string",
-      "minLength": 1
+      "type": "string"
     },
     "ErrorData": {
       "type": "object"
