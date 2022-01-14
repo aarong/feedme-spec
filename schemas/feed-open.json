@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/feed-open#",
+  "type": "object",
+  "required": ["MessageType", "FeedName", "FeedArgs"],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "FeedOpen" },
+    "FeedName": { "$ref": "feed-name" },
+    "FeedArgs": { "$ref": "feed-args" }
+  }
+}

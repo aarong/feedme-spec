@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/handshake-response#",
+  "anyOf": [
+    { "$ref": "handshake-response-success" },
+    { "$ref": "handshake-response-failure" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/handshake-response-success#",
+  "type": "object",
+  "required": ["MessageType", "Success", "Version"],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "HandshakeResponse" },
+    "Success": { "const": true },
+    "Version": { "$ref": "version" }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/feed-open-response-failure#",
+  "type": "object",
+  "required": [
+    "MessageType",
+    "Success",
+    "FeedName",
+    "FeedArgs",
+    "ErrorCode",
+    "ErrorData"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "FeedOpenResponse" },
+    "Success": { "const": false },
+    "FeedName": { "$ref": "feed-name" },
+    "FeedArgs": { "$ref": "feed-args" },
+    "ErrorCode": { "$ref": "error-code" },
+    "ErrorData": { "$ref": "error-data" }
+  }
+}

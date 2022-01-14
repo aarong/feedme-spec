@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/feed-close-response#",
+  "type": "object",
+  "required": ["MessageType", "FeedName", "FeedArgs"],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "FeedCloseResponse" },
+    "FeedName": { "$ref": "feed-name" },
+    "FeedArgs": { "$ref": "feed-args" }
+  }
+}

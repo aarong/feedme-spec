@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/feed-open-response-success#",
+  "type": "object",
+  "required": ["MessageType", "Success", "FeedName", "FeedArgs", "FeedData"],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "FeedOpenResponse" },
+    "Success": { "const": true },
+    "FeedName": { "$ref": "feed-name" },
+    "FeedArgs": { "$ref": "feed-args" },
+    "FeedData": { "$ref": "feed-data" }
+  }
+}

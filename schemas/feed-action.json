@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/feed-action#",
+  "type": "object",
+  "required": [
+    "MessageType",
+    "FeedName",
+    "FeedArgs",
+    "ActionName",
+    "ActionData",
+    "FeedDeltas"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "FeedAction" },
+    "FeedName": { "$ref": "feed-name" },
+    "FeedArgs": { "$ref": "feed-args" },
+    "ActionName": { "$ref": "action-name" },
+    "ActionData": { "$ref": "action-data" },
+    "FeedDeltas": { "$ref": "feed-deltas" },
+    "FeedMd5": { "$ref": "feed-md5" }
+  }
+}

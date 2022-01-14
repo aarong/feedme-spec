@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/action#",
+  "type": "object",
+  "required": ["MessageType", "ActionName", "ActionArgs", "CallbackId"],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "Action" },
+    "ActionName": { "$ref": "action-name" },
+    "ActionArgs": { "$ref": "action-args" },
+    "CallbackId": { "$ref": "callback-id" }
+  }
+}

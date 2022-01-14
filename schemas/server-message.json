@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/server-message#",
+  "anyOf": [
+    { "$ref": "violation-response" },
+    { "$ref": "handshake-response" },
+    { "$ref": "action-response" },
+    { "$ref": "feed-open-response" },
+    { "$ref": "feed-close-response" },
+    { "$ref": "feed-action" },
+    { "$ref": "feed-termination" }
+  ]
+}

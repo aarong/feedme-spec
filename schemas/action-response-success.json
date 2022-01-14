@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/action-response-success#",
+  "type": "object",
+  "required": ["MessageType", "Success", "CallbackId", "ActionData"],
+  "additionalProperties": false,
+  "properties": {
+    "MessageType": { "const": "ActionResponse" },
+    "Success": { "const": true },
+    "CallbackId": { "$ref": "callback-id" },
+    "ActionData": { "$ref": "action-data" }
+  }
+}

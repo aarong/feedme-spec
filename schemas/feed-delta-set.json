@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://feedme.global/schemas/0.1/feed-delta-set#",
+  "type": "object",
+  "required": ["Operation", "Path", "Value"],
+  "additionalProperties": false,
+  "properties": {
+    "Operation": { "const": "Set" },
+    "Path": { "$ref": "feed-delta-path" },
+    "Value": {}
+  }
+}
