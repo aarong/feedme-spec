@@ -6,6 +6,6 @@
   "additionalProperties": false,
   "properties": {
     "MessageType": { "const": "ViolationResponse" },
-    "Versions": { "$ref": "diagnostics" }
+    "Diagnostics": { "$ref": "diagnostics" }
   }
 }
