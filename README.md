@@ -179,12 +179,9 @@ clients:
 ## Messages
 
 Messages exchanged across the transport must be valid JSON-encoded objects.
-Client messages must satisfy the [client-message](schemas/client-message.json)
-schema and server messages must satisfy the
-[server-message](schemas/server-message.json) schema.
-
-The server must respond to each client-originating message with exactly one
-response message. Clients do not respond to server-originating messages.
+Client-originating messages must satisfy the
+[client-message](schemas/client-message.json) schema and server-originating
+messages must satisfy the [server-message](schemas/server-message.json) schema.
 
 Messages take the following form:
 
@@ -217,7 +214,8 @@ Clients can send four types of messages:
 
 #### Handshake
 
-A `Handshake` message is used to initiate the Feedme conversation.
+A `Handshake` message is used to initiate the Feedme conversation and must
+satisfy the [handshake](schemas/handshake.json) schema.
 
 The server must respond to a valid `Handshake` message with a
 `HandshakeResponse` message.
@@ -240,32 +238,10 @@ Parameters:
   supported by the client. The current and only version of the specification is
   0.1.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "Handshake"
-    },
-    "Versions": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string"
-      }
-    }
-  },
-  "required": ["MessageType", "Versions"],
-  "additionalProperties": false
-}
-```
-
 #### Action
 
-An `Action` message is used to invoke an action on the server.
+An `Action` message is used to invoke an action on the server and must satisfy
+the [action](schemas/action.json) schema.
 
 The server must respond to a valid `Action` message with an `ActionResponse`
 message.
@@ -297,34 +273,10 @@ Parameters:
   it must not reuse that `CallbackId` in another `Action` message until it has
   received the associated `ActionResponse` message from the server.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "Action"
-    },
-    "ActionName": {
-      "type": "string"
-    },
-    "ActionArgs": {
-      "type": "object"
-    },
-    "CallbackId": {
-      "type": "string"
-    }
-  },
-  "required": ["MessageType", "ActionName", "ActionArgs", "CallbackId"],
-  "additionalProperties": false
-}
-```
-
 #### FeedOpen
 
-A `FeedOpen` message is used to open a feed.
+A `FeedOpen` message is used to open a feed and must satisfy the
+[feed-open](schemas/feed-open.json) schema.
 
 The server must respond to a valid `FeedOpen` message with a `FeedOpenResponse`
 message.
@@ -348,34 +300,10 @@ Parameters:
 
 - `FeedArgs` (object of strings) contains any feed arguments.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "FeedOpen"
-    },
-    "FeedName": {
-      "type": "string"
-    },
-    "FeedArgs": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    }
-  },
-  "required": ["MessageType", "FeedName", "FeedArgs"],
-  "additionalProperties": false
-}
-```
-
 #### FeedClose
 
-A `FeedClose` message instructs the server to close a feed.
+A `FeedClose` message instructs the server to close a feed and must satisfy the
+[feed-close](schemas/feed-close.json) schema.
 
 The server must respond to a valid `FeedClose` message with a
 `FeedCloseResponse` message.
@@ -398,31 +326,6 @@ Parameters:
 - `FeedName` (string) is the name of the feed to close.
 
 - `FeedArgs` (object of strings) contains any feed arguments.
-
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "FeedClose"
-    },
-    "FeedName": {
-      "type": "string"
-    },
-    "FeedArgs": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    }
-  },
-  "required": ["MessageType", "FeedName", "FeedArgs"],
-  "additionalProperties": false
-}
-```
 
 ### Server-Originating Message Types
 
@@ -458,7 +361,8 @@ developments on open feeds:
 ##### ViolationResponse
 
 A `ViolationResponse` is used to respond to any client message that violates the
-specification.
+specification and must satisfy the
+[violation-response](schemas/violation-response.json) schema.
 
 Messages take the following form:
 
@@ -473,29 +377,11 @@ Parameters:
 
 - `Diagnostics` (object) may contain debugging information.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "ViolationResponse"
-    },
-    "Diagnostics": {
-      "type": "object"
-    }
-  },
-  "required": ["MessageType", "Diagnostics"],
-  "additionalProperties": false
-}
-```
-
 ##### HandshakeResponse
 
 A `HandshakeResponse` message is used to respond to a valid client `Handshake`
-message.
+message and must satisfy the
+[handshake-response](schemas/handshake-response.json) schema.
 
 If returning failure, messages take the following form:
 
@@ -531,49 +417,11 @@ Success parameters:
   conversation. It must have been selected from the versions specified in the
   client `Handshake` message.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "oneOf": [
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "const": "HandshakeResponse"
-        },
-        "Success": {
-          "const": true
-        },
-        "Version": {
-          "type": "string"
-        }
-      },
-      "required": ["MessageType", "Success", "Version"],
-      "additionalProperties": false
-    },
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "const": "HandshakeResponse"
-        },
-        "Success": {
-          "const": false
-        }
-      },
-      "required": ["MessageType", "Success"],
-      "additionalProperties": false
-    }
-  ]
-}
-```
-
 ##### ActionResponse
 
 An `ActionResponse` message is used to respond to a valid client `Action`
-message.
+message and must satisfy the [action-response](schemas/action-response.json)
+schema.
 
 If returning failure, messages take the following form:
 
@@ -616,67 +464,11 @@ Parameters:
 
 - `ActionData` (object) describes the outcome of the action.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "oneOf": [
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "const": "ActionResponse"
-        },
-        "CallbackId": {
-          "type": "string"
-        },
-        "Success": {
-          "const": true
-        },
-        "ActionData": {
-          "type": "object"
-        }
-      },
-      "required": ["MessageType", "CallbackId", "Success", "ActionData"],
-      "additionalProperties": false
-    },
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "const": "ActionResponse"
-        },
-        "CallbackId": {
-          "type": "string"
-        },
-        "Success": {
-          "const": false
-        },
-        "ErrorCode": {
-          "type": "string"
-        },
-        "ErrorData": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "MessageType",
-        "CallbackId",
-        "Success",
-        "ErrorCode",
-        "ErrorData"
-      ],
-      "additionalProperties": false
-    }
-  ]
-}
-```
-
 ##### FeedOpenResponse
 
 A `FeedOpenResponse` message is used to respond to a valid client `FeedOpen`
-message.
+message and must satisfy the
+[feed-open-response](schemas/feed-open-response.json) schema.
 
 If returning failure, messages take the following form:
 
@@ -727,87 +519,14 @@ Success parameters:
 
 - `FeedData` (object) is the current feed data.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "oneOf": [
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "const": "FeedOpenResponse"
-        },
-        "Success": {
-          "const": true
-        },
-        "FeedName": {
-          "type": "string"
-        },
-        "FeedArgs": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "FeedData": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "MessageType",
-        "Success",
-        "FeedName",
-        "FeedArgs",
-        "FeedData"
-      ],
-      "additionalProperties": false
-    },
-    {
-      "type": "object",
-      "properties": {
-        "MessageType": {
-          "const": "FeedOpenResponse"
-        },
-        "Success": {
-          "const": false
-        },
-        "FeedName": {
-          "type": "string"
-        },
-        "FeedArgs": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "ErrorCode": {
-          "type": "string"
-        },
-        "ErrorData": {
-          "type": "object"
-        }
-      },
-      "required": [
-        "MessageType",
-        "Success",
-        "FeedName",
-        "FeedArgs",
-        "ErrorCode",
-        "ErrorData"
-      ],
-      "additionalProperties": false
-    }
-  ]
-}
-```
-
 ##### FeedCloseResponse
 
 A `FeedCloseResponse` message is used to respond to a valid client `FeedClose`
-message and indicates that the feed has been closed successfully. The server is
-not permitted to reject valid `FeedClose` requests.
+message and must satisfy the
+[feed-close-response](schemas/feed-close-response.json) schema.
+
+A `FeedCloseResponse` message indicates that the feed has been closed
+successfully. The server is not permitted to reject valid `FeedClose` requests.
 
 Messages take the following form:
 
@@ -826,37 +545,12 @@ Parameters:
 - `FeedArgs` (object of strings) contains any feed arguments specified by the
   client.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "FeedCloseResponse"
-    },
-    "FeedName": {
-      "type": "string"
-    },
-    "FeedArgs": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    }
-  },
-  "required": ["MessageType", "FeedName", "FeedArgs"],
-  "additionalProperties": false
-}
-```
-
 #### Feed Notifications
 
 ##### FeedAction
 
 A `FeedAction` message is used to notify a client about an action on one of its
-open feeds.
+open feeds and must satisfy the [feed-action](schemas/feed-action.json) schema.
 
 Messages take the following form:
 
@@ -886,8 +580,9 @@ Parameters:
   `ActionResponse` messages.
 
 - `FeedDeltas` (array of delta objects) contains a sequence of operations to be
-  applied to the feed data. It may differ from the deltas passed with other
-  `FeedAction` messages.
+  applied to the feed data. Each operation is described using a
+  [feed delta](#feed-deltas) object. It may differ from the deltas passed with
+  other `FeedAction` messages.
 
 - `FeedMd5` (optional string) is a Base64-encoded MD5 hash of the feed data
   after the feed deltas have been applied. It will differ from the hashes passed
@@ -895,62 +590,11 @@ Parameters:
   different. It may be omitted if the server does not wish to enable feed data
   verification. If included, it must be exactly 24 characters long.
 
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "FeedAction"
-    },
-    "FeedName": {
-      "type": "string"
-    },
-    "FeedArgs": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    },
-    "ActionName": {
-      "type": "string"
-    },
-    "ActionData": {
-      "type": "object"
-    },
-    "FeedDeltas": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
-    },
-    "FeedMd5": {
-      "type": "string",
-      "minLength": 24,
-      "maxLength": 24
-    }
-  },
-  "required": [
-    "MessageType",
-    "FeedName",
-    "FeedArgs",
-    "ActionName",
-    "ActionData",
-    "FeedDeltas"
-  ],
-  "additionalProperties": false
-}
-```
-
-Each element in the `FeedDeltas` array must also satisfy one of the feed delta
-schemas specified below.
-
 ##### FeedTermination
 
 A `FeedTermination` message is used to notify a client that the server has
-forcibly closed a previously open feed.
+forcibly closed a previously open feed and must satisfy the
+[feed-termination](schemas/feed-termination.json) schema.
 
 Messages take the following form:
 
@@ -973,37 +617,6 @@ Parameters:
 - `ErrorCode` (string) indicates the reason for termination.
 
 - `ErrorData` (object) may contain further information.
-
-Messages must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "MessageType": {
-      "const": "FeedTermination"
-    },
-    "FeedName": {
-      "type": "string"
-    },
-    "FeedArgs": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    },
-    "ErrorCode": {
-      "type": "string"
-    },
-    "ErrorData": {
-      "type": "object"
-    }
-  },
-  "required": ["MessageType", "FeedName", "FeedArgs", "ErrorCode", "ErrorData"],
-  "additionalProperties": false
-}
-```
 
 ## Message Sequencing
 
