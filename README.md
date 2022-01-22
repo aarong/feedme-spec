@@ -179,6 +179,9 @@ clients:
 ## Messages
 
 Messages exchanged across the transport must be valid JSON-encoded objects.
+Client messages must satisfy the [client-message](schemas/client-message.json)
+schema and server messages must satisfy the
+[server-message](schemas/server-message.json) schema.
 
 The server must respond to each client-originating message with exactly one
 response message. Clients do not respond to server-originating messages.
@@ -422,6 +425,9 @@ Messages must satisfy the following JSON Schema:
 ```
 
 ### Server-Originating Message Types
+
+Server messages must satisfy the [server-message](schemas/server-message.json)
+schema.
 
 The server can send seven types of messages.
 
