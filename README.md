@@ -579,10 +579,9 @@ Parameters:
   may differ from action data passed with other `FeedAction` and
   `ActionResponse` messages.
 
-- `FeedDeltas` (array of delta objects) contains a sequence of operations to be
-  applied to the feed data. Each operation is described using a
-  [feed delta](#feed-deltas) object. It may differ from the deltas passed with
-  other `FeedAction` messages.
+- `FeedDeltas` (array of [delta objects](#feed-deltas)) contains a sequence of
+  operations to be applied to the feed data. It may differ from the deltas
+  passed with other `FeedAction` messages.
 
 - `FeedMd5` (optional string) is a Base64-encoded MD5 hash of the feed data
   after the feed deltas have been applied. It will differ from the hashes passed
