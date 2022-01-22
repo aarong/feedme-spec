@@ -916,18 +916,18 @@ Feed delta objects take the following form:
 
 ```json
 {
-  "Path": [ ... ],
   "Operation": "SOME_OPERATION",
+  "Path": [ ... ],
   ...
 }
 ```
 
 Parameters:
 
-- `Path` (array) describes the location in the feed data to operate upon.
-
 - `Operation` (string) is the name of the delta operation to perform. Its value
-  may put additional requirements on the feed delta object (including the path).
+  may put additional requirements on the feed delta object, including the path.
+
+- `Path` (array) describes the location in the feed data to operate upon.
 
 #### Paths
 
@@ -936,14 +936,13 @@ specified according to the following rules:
 
 - `[]` refers to the root of the feed data object.
 
-- `["Something"]` refers to the `Something` property of the root feed data
-  object.
+- `["Foo"]` refers to the `Foo` property of the root feed data object.
 
-- `["Parent", "Something"]` refers to the `Something` property of the `Parent`
-  object, which in turn is a child of the root feed data object.
-
-- `["MyArray", 0]` refers to the first element of the `MyArray` array, which in
+- `["Foo", "Bar"]` refers to the `Bar` property of the `Foo` object, which in
   turn is a child of the root feed data object.
+
+- `["Baz", 0]` refers to the first element of the `Baz` array, which in turn is
+  a child of the root feed data object.
 
 - Child property names and array indexes may be chained to arbitrary length.
 
@@ -956,7 +955,8 @@ data root is always an object.
 
 ##### Set
 
-The `Set` operation writes a value to the specified path.
+The `Set` operation writes a value to the specified path and must satisfy the
+[feed-delta-set](schemas/feed-delta-set.json) schema.
 
 Delta objects take the following form:
 
@@ -980,47 +980,10 @@ Parameters:
   3. A non-existing element of an existing array. Because JSON cannot represent
      arrays with missing elements, the referenced element must be directly after
      the last element in the array. If the array is empty, the path must
-     reference a zero index.
+     reference the zero index.
 
 - `Value` (any JSON value) is written to the referenced path. If the path
   references the root feed data object, then `Value` must be an object.
-
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Set"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {}
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
 
 ##### Delete
 
