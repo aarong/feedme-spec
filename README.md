@@ -1,4 +1,4 @@
-[![Feedme](https://raw.githubusercontent.com/aarong/feedme-client/master/logo.svg?sanitize=true)](https://feedme.global)
+[![Feedme](https://raw.githubusercontent.com/aarong/feedme-spec/master/logo.svg?sanitize=true)](https://feedme.global)
 
 # Feedme Specification
 
@@ -183,7 +183,7 @@ Client-originating messages must satisfy the
 [client-message](schemas/client-message.json) schema and server-originating
 messages must satisfy the [server-message](schemas/server-message.json) schema.
 
-Messages take the following form:
+Form:
 
 ```json
 {
@@ -214,16 +214,11 @@ Clients can send four types of messages:
 
 #### Handshake
 
-A `Handshake` message is used to initiate the Feedme conversation and must
-satisfy the [handshake](schemas/handshake.json) schema.
+A `Handshake` message is used to initiate the Feedme conversation.
 
-The server must respond to a valid `Handshake` message with a
-`HandshakeResponse` message.
+JSON Schema: [handshake](schemas/handshake.json)
 
-The server must respond to an invalid `Handshake` message with a
-`ViolationResponse` message.
-
-Messages take the following form:
+Form:
 
 ```json
 {
@@ -240,16 +235,11 @@ Parameters:
 
 #### Action
 
-An `Action` message is used to invoke an action on the server and must satisfy
-the [action](schemas/action.json) schema.
+An `Action` message is used to invoke an action on the server.
 
-The server must respond to a valid `Action` message with an `ActionResponse`
-message.
+JSON Schema: [action](schemas/action.json)
 
-The server must respond to an invalid `Action` message with a
-`ViolationResponse` message.
-
-Messages take the following form:
+Form:
 
 ```json
 {
@@ -275,16 +265,11 @@ Parameters:
 
 #### FeedOpen
 
-A `FeedOpen` message is used to open a feed and must satisfy the
-[feed-open](schemas/feed-open.json) schema.
+A `FeedOpen` message is used to open a feed.
 
-The server must respond to a valid `FeedOpen` message with a `FeedOpenResponse`
-message.
+JSON Schema: [feed-open](schemas/feed-open.json)
 
-The server must respond to an invalid `FeedOpen` message with a
-`ViolationResponse` message.
-
-Messages take the following form:
+Form:
 
 ```json
 {
@@ -302,16 +287,11 @@ Parameters:
 
 #### FeedClose
 
-A `FeedClose` message instructs the server to close a feed and must satisfy the
-[feed-close](schemas/feed-close.json) schema.
+A `FeedClose` message instructs the server to close a feed.
 
-The server must respond to a valid `FeedClose` message with a
-`FeedCloseResponse` message.
+JSON Schema: [feed-close](schemas/feed-close.json)
 
-The server must respond to an invalid `FeedClose` message with a
-`ViolationResponse` message.
-
-Messages take the following form:
+Form:
 
 ```json
 {
@@ -361,10 +341,11 @@ developments on open feeds:
 ##### ViolationResponse
 
 A `ViolationResponse` is used to respond to any client message that violates the
-specification and must satisfy the
-[violation-response](schemas/violation-response.json) schema.
+specification.
 
-Messages take the following form:
+JSON Schema: [violation-response](schemas/violation-response.json)
+
+Form:
 
 ```json
 {
@@ -380,10 +361,11 @@ Parameters:
 ##### HandshakeResponse
 
 A `HandshakeResponse` message is used to respond to a valid client `Handshake`
-message and must satisfy the
-[handshake-response](schemas/handshake-response.json) schema.
+message.
 
-If returning failure, messages take the following form:
+JSON Schema: [handshake-response](schemas/handshake-response.json)
+
+Form if returning failure:
 
 ```json
 {
@@ -397,7 +379,7 @@ Failure parameters:
 - `Success` (boolean) is set to false, indicating that none of the versions
   specified in the client `Handshake` message are supported by the server.
 
-If returning success, messages take the following form:
+Form if returning success:
 
 ```json
 {
@@ -420,10 +402,11 @@ Success parameters:
 ##### ActionResponse
 
 An `ActionResponse` message is used to respond to a valid client `Action`
-message and must satisfy the [action-response](schemas/action-response.json)
-schema.
+message.
 
-If returning failure, messages take the following form:
+JSON Schema: [action-response](schemas/action-response.json)
+
+Form if returning failure:
 
 ```json
 {
@@ -445,7 +428,7 @@ Failure parameters:
 
 - `ErrorData` (object) may contain further diagnostic information.
 
-If returning success, messages take the following form:
+Form if returning success:
 
 ```json
 {
@@ -467,10 +450,11 @@ Parameters:
 ##### FeedOpenResponse
 
 A `FeedOpenResponse` message is used to respond to a valid client `FeedOpen`
-message and must satisfy the
-[feed-open-response](schemas/feed-open-response.json) schema.
+message.
 
-If returning failure, messages take the following form:
+JSON Schema: [feed-open-response](schemas/feed-open-response.json)
+
+Form if returning failure:
 
 ```json
 {
@@ -496,7 +480,7 @@ Failure parameters:
 
 - `ErrorData` (object) may contain further diagnostic information.
 
-If returning success, messages take the following form:
+Form if returning success:
 
 ```json
 {
@@ -522,13 +506,12 @@ Success parameters:
 ##### FeedCloseResponse
 
 A `FeedCloseResponse` message is used to respond to a valid client `FeedClose`
-message and must satisfy the
-[feed-close-response](schemas/feed-close-response.json) schema.
+message and indicates that the feed has been closed successfully. The server is
+not permitted to reject valid `FeedClose` requests.
 
-A `FeedCloseResponse` message indicates that the feed has been closed
-successfully. The server is not permitted to reject valid `FeedClose` requests.
+JSON Schema: [feed-close-response](schemas/feed-close-response.json)
 
-Messages take the following form:
+Form:
 
 ```json
 {
@@ -550,9 +533,11 @@ Parameters:
 ##### FeedAction
 
 A `FeedAction` message is used to notify a client about an action on one of its
-open feeds and must satisfy the [feed-action](schemas/feed-action.json) schema.
+open feeds.
 
-Messages take the following form:
+JSON Schema: [feed-action](schemas/feed-action.json)
+
+Form:
 
 ```json
 {
@@ -592,10 +577,11 @@ Parameters:
 ##### FeedTermination
 
 A `FeedTermination` message is used to notify a client that the server has
-forcibly closed a previously open feed and must satisfy the
-[feed-termination](schemas/feed-termination.json) schema.
+forcibly closed a previously open feed.
 
-Messages take the following form:
+JSON Schema: [feed-termination](schemas/feed-termination.json)
+
+Form:
 
 ```json
 {
@@ -1327,12 +1313,13 @@ The server must respond in this manner if:
 
 - A client-originating message is not valid JSON.
 
-- A client-originating message is structurally invalid.
+- A client-originating message violates the
+  [client-message](schemas/client-message.json) schema.
 
 - A client-originating message violates the message sequencing requirements.
 
-If the client transmits an invalid message, it is recommended that the server
-also disconnect the client, as the state of the conversation has become
+After transmitting a `ViolationResponse` message, it is recommended that the
+server disconnect the client, as the state of the conversation has become
 ambiguous.
 
 If a client receives a `ViolationResponse` message from the server, it is
@@ -1349,7 +1336,8 @@ this manner if:
 
 - A server-originating message is not valid JSON.
 
-- A server-originating message is structurally invalid.
+- A server-originating message violates the
+  [server-message](schemas/server-message.json) schema.
 
 - A server-originating message violates the message sequencing requirements.
 
