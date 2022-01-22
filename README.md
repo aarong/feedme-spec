@@ -5,7 +5,7 @@
 Version 0.1 - Working Draft
 
 This document prescribes the JSON message format and behavior to be used by
-Feedme real-time API servers and clients.
+Feedme real-time API clients and servers.
 
 [https://feedme.global](https://feedme.global)
 
@@ -81,7 +81,7 @@ Implementations of this specification enable clients to:
 
 1. Perform operations on a server and be notified about the outcome.
 
-2. Access data on the server and be notified when and why it changes.
+2. Access data on the server and be notified when and changes and why.
 
 3. Subscribe to notifications about operations on the server.
 
@@ -102,10 +102,10 @@ connection to the server through some arbitrary communication channel. This
 communication channel is referred to in the abstract as the `Transport`.
 
 Minimal functionality is required of the transport. Once the client has
-established a connection to the server, the transport must enable the client and
-server to exchange string JSON messages of sufficient length to support the API
-running through it. The transport must ensure that messages are received by the
-other side in the order that they were sent.
+established a connection to the server via the transport, the transport must
+enable the two sides to exchange string JSON messages of sufficient length to
+support the API running through it. The transport must ensure that messages are
+received by the other side in the order that they were sent.
 
 Feedme APIs may support more than one transport. Supported transports should be
 documented for API clients.
@@ -122,8 +122,8 @@ feeds by specifying a `Feed Name` and may supply `Feed Arguments` with further
 specifics.
 
 When a client opens a feed, the server returns the current `Feed Data` and
-commits to notifying the client about future changes to that data. The feed may
-later be `Closed` by the client or forcibly `Terminated` by the server.
+commits to notifying the client about future changes to that data. The client
+may subsequently `Close` the feed and the server may forcibly `Terminate` it.
 
 The following are determined by the API design and should be documented for API
 clients:
@@ -143,7 +143,8 @@ by clients or may be deemed to have occurred by the server.
 
 In order to perform an action, clients indicate an `Action Name` and may supply
 `Action Arguments` with further specifics. If the action is executed
-successfully, the server returns `Action Data` describing the outcome.
+successfully, the server returns `Action Data` to the client describing the
+outcome.
 
 The following are determined by the API design and should be documented for API
 clients:
@@ -157,21 +158,19 @@ clients:
 ### Action Notifications
 
 When an action is invoked by a client or is deemed to have occurred by the
-server, the server may transmit an `Action Notification` on one or more open
-feeds.
+server, the server may transmit an `Action Notification` on one or more feeds.
 
 When the server notifies a client about an action on one its open feeds, the
 server specifies an `Action Name` and `Action Data` with further specifics.
 
-The server may also specify a sequence of `Deltas` describing any resulting
+The server may also specify a sequence of `Feed Deltas` describing any resulting
 changes to the feed data. Feed data can only change as a result of action
-notifications, so the client can understand both how and why the data is
-changing.
+notifications.
 
 The following are determined by the API design and should be documented for API
 clients:
 
-- The set of actions that can be notified on each feed.
+- The set of actions that can be transmitted as notifications on each feed.
 
 - The structure of any associated action data.
 
@@ -182,7 +181,7 @@ clients:
 Messages exchanged across the transport must be valid JSON-encoded objects.
 
 The server must respond to each client-originating message with exactly one
-response message. Clients must not respond to server-originating messages.
+response message. Clients do not respond to server-originating messages.
 
 Messages take the following form:
 
@@ -195,10 +194,13 @@ Messages take the following form:
 
 Parameters:
 
-- `MessageType` (string) indicates the type of message being transmitted and
+- `MessageType` (string) indicates the type of message being transmitted, which
   puts additional requirements on the structure of the message.
 
 ### Client-Originating Message Types
+
+Client messages must satisfy the [schemas/client-message](client-message)
+schema.
 
 Clients can send four types of messages:
 
