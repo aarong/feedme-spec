@@ -955,10 +955,11 @@ data root is always an object.
 
 ##### Set
 
-The `Set` operation writes a value to the specified path and must satisfy the
-[feed-delta-set](schemas/feed-delta-set.json) schema.
+A `Set` delta writes a value to the specified path.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-set](schemas/feed-delta-set.json)
+
+Form:
 
 ```json
 {
@@ -987,10 +988,12 @@ Parameters:
 
 ##### Delete
 
-The `Delete` operation removes an object child property by name or an array
-element by index.
+A `Delete` delta removes an object child property by name or an array element by
+index.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-delete](schemas/feed-delta-delete.json)
+
+Form:
 
 ```json
 {
@@ -1007,46 +1010,14 @@ Parameters:
 
   2. An existing element of an array.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Delete"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    }
-  },
-  "required": ["Operation", "Path"],
-  "additionalProperties": false
-}
-```
-
 ##### DeleteValue
 
-The `DeleteValue` operation removes all object child properties or array
-elements that deep-equal a specified value.
+A `DeleteValue` delta removes all object child properties or array elements that
+deep-equal a specified value.
+
+JSON Schema: [feed-delta-delete-value](schemas/feed-delta-delete-value.json)
+
+Form:
 
 Delta objects take the following form:
 
@@ -1069,51 +1040,16 @@ Parameters:
 - `Value` (any JSON value) determines the child properties or array elements to
   be deleted.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "DeleteValue"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {}
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 #### String Operations
 
 ##### Prepend
 
-The `Prepend` operation adds a specified string to the beginning of an existing
+A `Prepend` delta adds a specified string to the beginning of an existing
 string.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-prepend](schemas/feed-delta-prepend.json)
+
+Form:
 
 ```json
 {
@@ -1129,50 +1065,13 @@ Parameters:
 
 - `Value` (string) is prepended to the referenced string.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Prepend"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {
-      "type": "string"
-    }
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 ##### Append
 
-The `Append` operation adds a specified string to the end of an existing string.
+An `Append` delta adds a specified string to the end of an existing string.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-append](schemas/feed-delta-append.json)
+
+Form:
 
 ```json
 {
@@ -1188,52 +1087,15 @@ Parameters:
 
 - `Value` (string) is appended to the referenced string.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Append"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {
-      "type": "string"
-    }
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 #### Number Operations
 
 ##### Increment
 
-The `Increment` operation increases a number by a specified amount.
+An `Increment` delta increases a number by a specified amount.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-increment](schemas/feed-delta-increment.json)
+
+Form:
 
 ```json
 {
@@ -1249,50 +1111,13 @@ Parameters:
 
 - `Value` (number) is added to the referenced number.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Increment"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {
-      "type": "number"
-    }
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 ##### Decrement
 
-The `Decrement` operation decreases a number by a specified amount.
+A `Decrement` delta decreases a number by a specified amount.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-decrement](schemas/feed-delta-decrement.json)
+
+Form:
 
 ```json
 {
@@ -1308,52 +1133,15 @@ Parameters:
 
 - `Value` (number) is subtracted from the referenced number.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Decrement"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {
-      "type": "number"
-    }
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 #### Boolean Operations
 
 ##### Toggle
 
-The `Toggle` operation inverts a boolean value.
+A `Toggle` delta inverts a boolean value.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-toggle](schemas/feed-delta-toggle.json)
+
+Form:
 
 ```json
 {
@@ -1366,42 +1154,6 @@ Parameters:
 
 - `Path` (path array) must point to an existing boolean value.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "Toggle"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    }
-  },
-  "required": ["Operation", "Path"],
-  "additionalProperties": false
-}
-```
-
 #### Array Operations
 
 To set an array element by index, use the `Set` operation.
@@ -1412,9 +1164,11 @@ To delete array elements by value, use the `DeleteValue` operation.
 
 ##### InsertFirst
 
-The `InsertFirst` operation adds a specified value to the beginning of an array.
+An `InsertFirst` delta adds a specified value to the beginning of an array.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-insert-first](schemas/feed-delta-insert-first.json)
+
+Form:
 
 ```json
 {
@@ -1430,48 +1184,13 @@ Parameters:
 
 - `Value` (any JSON value) is inserted at the beginning of the referenced array.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "InsertFirst"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {}
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 ##### InsertLast
 
-The `InsertLast` operation adds a specified value to the end of an array.
+An `InsertLast` delta adds a specified value to the end of an array.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-insert-last](schemas/feed-delta-insert-last.json)
+
+Form:
 
 ```json
 {
@@ -1487,49 +1206,13 @@ Parameters:
 
 - `Value` (any JSON value) is inserted at the end of the referenced array.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "InsertLast"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {}
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 ##### InsertBefore
 
-The `InsertBefore` operation inserts a specified value before an element in an
-array.
+An `InsertBefore` delta inserts a specified value before an element in an array.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-insert-before](schemas/feed-delta-insert-before.json)
+
+Form:
 
 ```json
 {
@@ -1545,49 +1228,13 @@ Parameters:
 
 - `Value` (any JSON value) is inserted before the referenced array element.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "InsertBefore"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {}
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 ##### InsertAfter
 
-The `InsertAfter` operation inserts a specified value after an element in an
-array.
+An `InsertAfter` delta inserts a specified value after an element in an array.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-insert-after](schemas/feed-delta-insert-after.json)
+
+Form:
 
 ```json
 {
@@ -1603,48 +1250,13 @@ Parameters:
 
 - `Value` (any JSON value) is inserted after the referenced array element.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "InsertAfter"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    },
-    "Value": {}
-  },
-  "required": ["Operation", "Path", "Value"],
-  "additionalProperties": false
-}
-```
-
 ##### DeleteFirst
 
-The `DeleteFirst` operation removes the first element of an array.
+A `DeleteFirst` delta removes the first element of an array.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-delete-first](schemas/feed-delta-delete-first.json)
+
+Form:
 
 ```json
 {
@@ -1658,47 +1270,13 @@ Parameters:
 - `Path` (path array) must point to an existing array. The array must not be
   empty.
 
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "DeleteFirst"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    }
-  },
-  "required": ["Operation", "Path"],
-  "additionalProperties": false
-}
-```
-
 ##### DeleteLast
 
-The `DeleteLast` operation removes the last element of an array.
+A `DeleteLast` delta removes the last element of an array.
 
-Delta objects take the following form:
+JSON Schema: [feed-delta-delete-last](schemas/feed-delta-delete-last.json)
+
+Form:
 
 ```json
 {
@@ -1711,42 +1289,6 @@ Parameters:
 
 - `Path` (path array) must point to an existing array. The array must not be
   empty.
-
-Delta objects must satisfy the following JSON Schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "Operation": {
-      "const": "DeleteLast"
-    },
-    "Path": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        }
-      ],
-      "additionalItems": {
-        "oneOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "number",
-            "multipleOf": 1,
-            "minimum": 0
-          }
-        ]
-      }
-    }
-  },
-  "required": ["Operation", "Path"],
-  "additionalProperties": false
-}
-```
 
 ### Integrity Verification
 
