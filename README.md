@@ -411,8 +411,8 @@ Form if returning failure:
 ```json
 {
   "MessageType": "ActionResponse",
-  "CallbackId": "SOME_CALLBACK_ID",
   "Success": false,
+  "CallbackId": "SOME_CALLBACK_ID",
   "ErrorCode": "SOME_ERROR_CODE",
   "ErrorData": { ... }
 }
@@ -420,9 +420,9 @@ Form if returning failure:
 
 Failure parameters:
 
-- `CallbackId` (string) is the value specified in the client `Action` message.
-
 - `Success` (boolean) is set to false, indicating failure.
+
+- `CallbackId` (string) is the value specified in the client `Action` message.
 
 - `ErrorCode` (string) indicates the nature of the problem.
 
@@ -433,17 +433,17 @@ Form if returning success:
 ```json
 {
   "MessageType": "ActionResponse",
-  "CallbackId": "SOME_CALLBACK_ID",
   "Success": true,
+  "CallbackId": "SOME_CALLBACK_ID",
   "ActionData": { ... }
 }
 ```
 
 Parameters:
 
-- `CallbackId` (string) is the value specified in the client `Action` message.
-
 - `Success` (boolean) is set to true, indicating success.
+
+- `CallbackId` (string) is the value specified in the client `Action` message.
 
 - `ActionData` (object) describes the outcome of the action.
 
@@ -459,9 +459,9 @@ Form if returning failure:
 ```json
 {
   "MessageType": "FeedOpenResponse",
+  "Success": false,
   "FeedName": "SOME_FEED_NAME",
   "FeedArgs": { ... },
-  "Success": false,
   "ErrorCode": "SOME_ERROR_CODE",
   "ErrorData": { ... }
 }
@@ -485,9 +485,9 @@ Form if returning success:
 ```json
 {
   "MessageType": "FeedOpenResponse",
+  "Success": true,
   "FeedName": "SOME_FEED_NAME",
   "FeedArgs": { ... },
-  "Success": true,
   "FeedData": { ... }
 }
 ```
@@ -501,7 +501,7 @@ Success parameters:
 - `FeedArgs` (object of strings) contains any feed arguments specified by the
   client.
 
-- `FeedData` (object) is the current feed data.
+- `FeedData` (object) is the initial feed data.
 
 ##### FeedCloseResponse
 
@@ -612,20 +612,20 @@ conversation.
 ### Fundamentals
 
 The conversation is controlled by the client. The client initiates the
-conversation by transmitting a `Handshake` message to the server and then steers
-the interaction by transmitting `Action`, `FeedOpen`, and `FeedClose` messages.
+conversation by transmitting a `Handshake` message and then steers the
+interaction by transmitting `Action`, `FeedOpen`, and `FeedClose` messages.
 
 The server must return exactly one message in response to each
-client-originating message. The server is not obligated to respond to client
+client-originating message. The server is not required to respond to client
 messages in the order that they are received.
 
 ### Handshakes
 
 #### Client
 
-Once connected to the server via the transport, the client must treat the
-conversation as being in one of three states. The client must initially treat
-the conversation as `Not Initiated`.
+The client must treat the conversation as being in one of three states. Upon
+connecting to the server via the transport, the client must initially treat the
+conversation as `Not Initiated`.
 
 1. `Not Initiated` - When the conversation is in this state...
 
@@ -633,8 +633,8 @@ the conversation as `Not Initiated`.
   treat the conversation as `Handshaking`. The client must not transmit any
   other type of message to the server.
 
-- If the server is complying with the specification, the client will not receive
-  any messages.
+- If the server is complying with the specification, then the client will not
+  receive any messages.
 
 2. `Handshaking` - When the conversation is in this state...
 
@@ -658,7 +658,8 @@ the conversation as `Not Initiated`.
 #### Server
 
 The server must treat each client conversation as being in one of three states.
-The server must initially treat client conversations as `Not Initiated`.
+When a client connects via the transport, the server must initially treat the
+conversation as `Not Initiated`.
 
 1. `Not Initiated` - When the conversation is in this state...
 
@@ -693,22 +694,25 @@ The server must initially treat client conversations as `Not Initiated`.
 #### Client
 
 Once a conversation is `Initiated`, the client may transmit `Action` messages to
-the server at its discretion. Clients need not await the response to one
-`Action` message before transmitting another.
+the server at its discretion. Clients need not await a response to one `Action`
+message before transmitting another.
 
 #### Server
 
 Once a conversation is `Initiated`, the server must respond to each valid
 `Action` message by returning an `ActionResponse` message referencing the same
-callback identifier. Any associated `FeedAction` messages sent to the client
-performing the action may be transmitted either before or after the
-`ActionResponse` message.
+`CallbackId`. Any associated `FeedAction` messages sent to the client performing
+the action may be transmitted either before or after the `ActionResponse`
+message.
 
 ### Feeds
 
-Feeds are idenitified by a feed name and a set of zero or more key-value feed
-arguments. Different feeds have different feed names, or different feed argument
-keys, or different feed argument values, or some combination of the preceding.
+`FeedOpen`, `FeedClose`, `FeedOpenResponse`, `FeedCloseResponse`, `FeedAction`,
+and `FeedTermination` messages identify feeds using two parameters: `FeedName`
+(string) and `FeedArgs` (object of strings).
+
+If two messages have matching `FeedName` parameters, matching `FeedArgs` keys,
+and matching `FeedArgs` values, then the two messages reference the same feed.
 
 #### Client
 
@@ -746,8 +750,8 @@ Client feed states:
 - The client must not transmit a `FeedOpen` message referencing the feed.
 
 - If the server is complying with the specification, then the client may receive
-  an `FeedAction` message referencing the feed. If received, then the client
-  must continue to treat the feed as `Open`.
+  a `FeedAction` message referencing the feed. If received, then the client must
+  continue to treat the feed as `Open`.
 
 - If the server is complying with the specification, then the client may receive
   a `FeedTermination` message referencing the feed. If received, then the client
@@ -762,16 +766,14 @@ Client feed states:
 - The client must not transmit any messages referencing the feed.
 
 - If the server is complying with the specification, then the client may receive
-  an `FeedAction` message referencing the feed. If the server is in compliance,
-  then it transmitted the `FeedAction` message before it received the
-  `FeedClose` message from the client. If received, then the client must
-  continue to treat the feed as `Closing`.
+  a `FeedAction` message referencing the feed, which was transmitted before the
+  server received the `FeedClose` message from the client. If received, then the
+  client must continue to treat the feed as `Closing`.
 
 - If the server is complying with the specification, then the client may receive
-  a `FeedTermination` message referencing the feed. If the server is in
-  compliance, then it transmitted the `FeedTermination` message before it
-  received the `FeedClose` message from the client. If received, then the client
-  must subsequently treat the feed as `Terminated`.
+  a `FeedTermination` message referencing the feed, which was transmitted before
+  the server received the `FeedClose` message from the client. If received, then
+  the client must subsequently treat the feed as `Terminated`.
 
 - If the server is complying with the specification, then the client may receive
   a `FeedCloseResponse` message referencing the feed. Once received, the client
@@ -824,9 +826,8 @@ Server feed states:
 
 3. `Open` - When a client feed is in this state...
 
-- The server may, at its discretion, transmit an `FeedAction` message
-  referencing the feed. If sent, the server must continue to treat the feed as
-  `Open`.
+- The server may, at its discretion, transmit a `FeedAction` message referencing
+  the feed. If sent, the server must continue to treat the feed as `Open`.
 
 - The server may, at its discretion, transmit a `FeedTermination` message
   referencing the feed. If sent, the server must subsequently treat the feed as
@@ -873,21 +874,17 @@ Server feed states:
 
 ## Feed Data
 
-When a client successfully opens a feed, the feed data is returned with the
-server's `FeedOpenResponse` message and may be modified by subsequent
-`FeedAction` messages.
-
-The server may use `FeedAction` messages to notify about actions explicitly
-invoked by clients using an `Action` message, as well as actions deemed by the
-server to have taken place without an associated client `Action` message.
+When a client successfully opens a feed, the server transmits a feed data object
+with its `FeedOpenResponse` message. This feed data object may be modified by
+subsequent `FeedAction` messages.
 
 ### Feed Deltas
 
-When the server transmits a `FeedAction` message, it must include a `FeedDeltas`
-array describing any resulting changes to the feed data. Each element of the
-array must be a valid feed delta object describing an operation to be performed
-on the feed data. The server may transmit an empty `FeedDeltas` array to
-indicate that the feed data has not changed.
+When the server transmits a `FeedAction` message, it includes a `FeedDeltas`
+array describing any changes to the feed data. Each element of the array must be
+a valid feed delta object describing an operation to be performed on the feed
+data. The server may transmit an empty `FeedDeltas` array to indicate that the
+feed data has not changed.
 
 When the client receives a `FeedAction` message, it must apply any feed delta
 operations to its local copy of the feed data. Operations must be applied in
@@ -911,14 +908,13 @@ Feed delta objects take the following form:
 Parameters:
 
 - `Operation` (string) is the name of the delta operation to perform. Its value
-  may put additional requirements on the feed delta object, including the path.
+  may put additional requirements on the feed delta object.
 
 - `Path` (array) describes the location in the feed data to operate upon.
 
 #### Paths
 
-`Path` arrays are used to reference locations in the feed data object. Paths are
-specified according to the following rules:
+A `Path` array refers to a location in the feed data object:
 
 - `[]` refers to the root of the feed data object.
 
@@ -930,9 +926,9 @@ specified according to the following rules:
 - `["Baz", 0]` refers to the first element of the `Baz` array, which in turn is
   a child of the root feed data object.
 
-- Child property names and array indexes may be chained to arbitrary length.
+Child property names and array indexes may be chained to arbitrary length.
 
-The first element of a `Path` array must be a string if present, as the feed
+If present, the first element of a `Path` array must be a string, as the feed
 data root is always an object.
 
 #### Operations
@@ -1030,8 +1026,8 @@ Parameters:
 
 ##### Prepend
 
-A `Prepend` delta adds a specified string to the beginning of an existing
-string.
+A `Prepend` delta concatenates a specified string to the beginning of an
+existing string.
 
 JSON Schema: [feed-delta-prepend](schemas/feed-delta-prepend.json)
 
@@ -1053,7 +1049,8 @@ Parameters:
 
 ##### Append
 
-An `Append` delta adds a specified string to the end of an existing string.
+An `Append` delta concatenates a specified string to the end of an existing
+string.
 
 JSON Schema: [feed-delta-append](schemas/feed-delta-append.json)
 
@@ -1289,9 +1286,9 @@ the server must:
 2. Take an MD5 hash of that text, encode it as a Base64 string, and transmit it
    to the client as the `FeedMd5` parameter of the `FeedAction` message.
 
-If the server transmits a feed data hash with an `FeedAction` message, the
-client should validate its post-delta copy of the feed data against it. To do
-so, the client must:
+If the server transmits a feed data hash with a `FeedAction` message, the client
+should validate its post-delta copy of the feed data against it. To do so, the
+client must:
 
 1. Generate a JSON encoding of the post-delta feed data object. Canonicalize the
    encoding by serializing object properties in lexicographical order and
