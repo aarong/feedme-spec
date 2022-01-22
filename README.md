@@ -199,7 +199,7 @@ Parameters:
 
 ### Client-Originating Message Types
 
-Client messages must satisfy the [schemas/client-message.json](client-message)
+Client messages must satisfy the [client-message](schemas/client-message.json)
 schema.
 
 Clients can send four types of messages:
