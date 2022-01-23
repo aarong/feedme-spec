@@ -163,9 +163,8 @@ server, the server may transmit an `Action Notification` on one or more feeds.
 When the server notifies a client about an action on one its open feeds, the
 server specifies an `Action Name` and `Action Data` with further specifics.
 
-The server may also specify a sequence of `Feed Deltas` describing any resulting
-changes to the feed data. Feed data can only change as a result of action
-notifications.
+The server may also specify a sequence of `Feed Deltas` describing any changes
+to the feed data. Feed data can only change as a result of action notifications.
 
 The following are determined by the API design and should be documented for API
 clients:
@@ -565,8 +564,7 @@ Parameters:
   `ActionResponse` messages.
 
 - `FeedDeltas` (array of [delta objects](#feed-deltas)) contains a sequence of
-  operations to be applied to the feed data. It may differ from the deltas
-  passed with other `FeedAction` messages.
+  operations to be applied to the feed data.
 
 - `FeedMd5` (optional string) is a Base64-encoded MD5 hash of the feed data
   after the feed deltas have been applied. It will differ from the hashes passed
@@ -877,6 +875,10 @@ Server feed states:
 When a client successfully opens a feed, the server transmits a feed data object
 with its `FeedOpenResponse` message. This feed data object may be modified by
 subsequent `FeedAction` messages.
+
+If multiple clients open the same feed, the server is free to return a different
+feed data object to each client. Subsequently, the server is free to transmit a
+different sequence of `FeedAction` messages and feed deltas to each client.
 
 ### Feed Deltas
 
